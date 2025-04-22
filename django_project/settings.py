@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     "pages",
     "apis",
     "rest_framework",
-    "api"
+    # "apis",
+    'drf_spectacular',
 ]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
@@ -209,3 +210,13 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",  # Default Django dev server
     "http://127.0.0.1:8000",  # Alternative local address
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'WeatherForeteller API',
+    'DESCRIPTION': 'Weather and temperature forecasting API.',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
