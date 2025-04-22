@@ -219,4 +219,10 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Weather and temperature forecasting API.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'TAGS': [
+        {
+            'name': 'Forecasts',
+            'description': 'Endpoints for listing, retrieving, and downloading temperature forecasts.'
+        },
+    ]
 }

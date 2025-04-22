@@ -12,6 +12,7 @@ from .models import UploadedCSV, TemperatureForecast
 
 class UploadCSVView(APIView):
     @extend_schema(
+        tags=["Forecasts"],
         request={
             "multipart/form-data": {"type": "object", "properties": {"file": {"type": "string", "format": "binary"}}}},
         responses={
@@ -31,6 +32,7 @@ class UploadCSVView(APIView):
 
 class ListUploadedCSVView(APIView):
     @extend_schema(
+        tags=["Forecasts"],
         responses={
             200: OpenApiResponse(description="List of CSV files uploaded by the user"),
         },
@@ -51,6 +53,7 @@ class ListUploadedCSVView(APIView):
 
 class PredictFromCSVView(APIView):
     @extend_schema(
+        tags=["Forecasts"],
         request={"application/json": {"type": "object", "properties": {"csv_id": {"type": "integer"}}}},
         responses={
             201: OpenApiResponse(description="Forecast generated from uploaded CSV file."),
@@ -87,6 +90,7 @@ class PredictFromCSVView(APIView):
 
 class PredictFromCityView(APIView):
     @extend_schema(
+        tags=["Forecasts"],
         request={"application/json": {"type": "object", "properties": {"city": {"type": "string"}}}},
         responses={
             201: OpenApiResponse(description="Forecast generated based on city name."),
@@ -119,6 +123,7 @@ class PredictFromCityView(APIView):
 
 class ForecastListView(APIView):
     @extend_schema(
+        tags=["Forecasts"],
         responses={
             200: OpenApiResponse(description="List of all forecasts.")
         },
@@ -140,6 +145,7 @@ class ForecastListView(APIView):
 
 class ForecastDetailView(APIView):
     @extend_schema(
+        tags=["Forecasts"],
         parameters=[OpenApiParameter("id", int, OpenApiParameter.PATH)],
         responses={
             200: OpenApiResponse(description="Details of a specific forecast."),
@@ -165,6 +171,7 @@ class ForecastDetailView(APIView):
 
 class ForecastDownloadCSVView(APIView):
     @extend_schema(
+        tags=["Forecasts"],
         parameters=[OpenApiParameter("id", int, OpenApiParameter.PATH)],
         responses={
             200: OpenApiResponse(description="CSV file with forecast data."),
