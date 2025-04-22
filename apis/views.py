@@ -5,15 +5,19 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse
+from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiResponse, OpenApiExample
 
 from .models import UploadedCSV, TemperatureForecast
 
 
 class UploadCSVView(APIView):
     @extend_schema(
-        request={"multipart/form-data": {"type": "object", "properties": {"file": {"type": "string", "format": "binary"}}}},
-        responses={200: OpenApiResponse(description="CSV uploaded successfully")},
+        request={
+            "multipart/form-data": {"type": "object", "properties": {"file": {"type": "string", "format": "binary"}}}},
+        responses={
+            200: OpenApiResponse(description="CSV uploaded successfully."),
+            400: OpenApiResponse(description="Only CSV files are supported.")
+        },
         description="Upload a CSV file containing weather data. Only `.csv` files are accepted."
     )
     def post(self, request, format=None):
@@ -27,7 +31,9 @@ class UploadCSVView(APIView):
 
 class ListUploadedCSVView(APIView):
     @extend_schema(
-        responses={200: OpenApiResponse(description="List of CSV files uploaded by the user")},
+        responses={
+            200: OpenApiResponse(description="List of CSV files uploaded by the user"),
+        },
         description="Get a list of CSV files uploaded by the authenticated user."
     )
     def get(self, request, format=None):
@@ -46,7 +52,10 @@ class ListUploadedCSVView(APIView):
 class PredictFromCSVView(APIView):
     @extend_schema(
         request={"application/json": {"type": "object", "properties": {"csv_id": {"type": "integer"}}}},
-        responses={201: OpenApiResponse(description="Forecast generated from uploaded CSV file")},
+        responses={
+            201: OpenApiResponse(description="Forecast generated from uploaded CSV file."),
+            404: OpenApiResponse(description="CSV not found or not yours."),
+        },
         description="Generate temperature prediction based on a previously uploaded CSV file."
     )
     def post(self, request):
@@ -79,7 +88,10 @@ class PredictFromCSVView(APIView):
 class PredictFromCityView(APIView):
     @extend_schema(
         request={"application/json": {"type": "object", "properties": {"city": {"type": "string"}}}},
-        responses={201: OpenApiResponse(description="Forecast generated based on city name")},
+        responses={
+            201: OpenApiResponse(description="Forecast generated based on city name."),
+            400: OpenApiResponse(description="City is required.")
+        },
         description="Generate temperature forecast using city name (location-based weather prediction)."
     )
     def post(self, request):
@@ -107,7 +119,9 @@ class PredictFromCityView(APIView):
 
 class ForecastListView(APIView):
     @extend_schema(
-        responses={200: OpenApiResponse(description="List of all forecasts")},
+        responses={
+            200: OpenApiResponse(description="List of all forecasts.")
+        },
         description="Retrieve a list of all generated temperature forecasts."
     )
     def get(self, request):
@@ -127,7 +141,10 @@ class ForecastListView(APIView):
 class ForecastDetailView(APIView):
     @extend_schema(
         parameters=[OpenApiParameter("id", int, OpenApiParameter.PATH)],
-        responses={200: OpenApiResponse(description="Details of a specific forecast")},
+        responses={
+            200: OpenApiResponse(description="Details of a specific forecast."),
+            404: OpenApiResponse(description="Forecast not found.")
+        },
         description="Get detailed data of a specific forecast by ID."
     )
     def get(self, request, id):
@@ -149,7 +166,10 @@ class ForecastDetailView(APIView):
 class ForecastDownloadCSVView(APIView):
     @extend_schema(
         parameters=[OpenApiParameter("id", int, OpenApiParameter.PATH)],
-        responses={200: OpenApiResponse(description="CSV file with forecast data")},
+        responses={
+            200: OpenApiResponse(description="CSV file with forecast data."),
+            404: OpenApiResponse(description="Forecast not found.")
+        },
         description="Download the forecast as a CSV file."
     )
     def get(self, request, id):
