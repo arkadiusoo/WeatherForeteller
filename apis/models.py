@@ -9,3 +9,13 @@ class UploadedCSV(models.Model):
 
     def __str__(self):
         return f"CSV uploaded at: {self.uploaded_at} - {self.user.username}"
+
+class TemperatureForecast(models.Model):
+    source_type = models.CharField(max_length=20, choices=[('csv', 'CSV'), ('city', 'City')])
+    source_name = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    time_list = models.JSONField()
+    temperature_list = models.JSONField()
+
+    def __str__(self):
+        return f"{self.source_type.upper()} Forecast for {self.source_name} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"
