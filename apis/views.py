@@ -9,6 +9,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiRespon
 
 from .models import UploadedCSV, TemperatureForecast
 
+from .utils import predict_from_csv
+
 
 class UploadCSVView(APIView):
     @extend_schema(
@@ -26,7 +28,7 @@ class UploadCSVView(APIView):
         if not file or not file.name.endswith('.csv'):
             return Response({'error': 'Only CSV files are supported.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        UploadedCSV.objects.create(user=request.user, file=file)
+        UploadedCSV.objects.create(file=file)
         return Response({'message': f'File {file.name} uploaded successfully.'}, status=status.HTTP_200_OK)
 
 
@@ -39,7 +41,7 @@ class ListUploadedCSVView(APIView):
         description="Get a list of CSV files uploaded by the authenticated user."
     )
     def get(self, request, format=None):
-        uploaded_files = UploadedCSV.objects.filter(user=request.user).order_by('-uploaded_at')
+        uploaded_files = UploadedCSV.objects.filter().order_by('-uploaded_at')
         data = [
             {
                 'id': f.id,
@@ -69,6 +71,8 @@ class PredictFromCSVView(APIView):
             return Response({'error': 'CSV not found or not yours'}, status=404)
 
         path = os.path.join(csv_file.file.storage.location, csv_file.file.name)
+
+        time_list, temp_list = predict_from_csv(path)
 
         time_list = ["19.00", "20.00", "21.00", "22.00", "23.00"]
         temp_list = [1.8, 2.8, 3.8, 4.8, 5.8]
