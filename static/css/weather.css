@@ -48,3 +48,15 @@ button:hover {
   font-size: 2rem;
   margin-bottom: 0.5rem;
 }
+body {
+  background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+  font-family: 'Helvetica Neue', sans-serif;
+}
+
+.card h1, .card h4 {
+  font-weight: 600;
+}
+
+.btn-outline-danger {
+  font-size: 0.9rem;
+}
