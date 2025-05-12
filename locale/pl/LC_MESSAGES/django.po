@@ -60,5 +60,8 @@ msgstr "To pole jest wymagane."
 msgid "Enter a valid email address."
 msgstr "Wprowadź poprawny adres e-mail."
 
-msgid "Don't have an account? Sign up"
-msgstr "Nie masz konta? Zarejestruj się"
+msgid "Set new password"
+msgstr "Ustaw nowe hasło"
+
+msgid "Change password"
+msgstr "Zmień hasło"
