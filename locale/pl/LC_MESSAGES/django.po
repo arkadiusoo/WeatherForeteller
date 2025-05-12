@@ -1,0 +1,64 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-12 23:45+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
+"(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
+"n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+#: templates/account/email/password_reset_key_message.txt:2
+#, python-format
+msgid ""
+"Hello from %(site_name)s!\n"
+"\n"
+"We've received a request to reset your password. If you didn't make this "
+"request, you can safely ignore this email. Otherwise, click the button below "
+"to reset your password."
+msgstr ""
+
+#: templates/account/login.html
+msgid "Log in"
+msgstr "Zaloguj się"
+
+msgid "Don't have an account? Sign up"
+msgstr "Nie masz konta? Zarejestruj się"
+
+msgid "Forgot your password?"
+msgstr "Nie pamiętasz hasła?"
+
+msgid "Username"
+msgstr "Nazwa użytkownika"
+
+msgid "Password"
+msgstr "Hasło"
+
+msgid "Email"
+msgstr "Adres e-mail"
+
+msgid "Sign up"
+msgstr "Zarejestruj się"
+
+msgid "Log out"
+msgstr "Wyloguj się"
+
+msgid "This field is required."
+msgstr "To pole jest wymagane."
+
+msgid "Enter a valid email address."
+msgstr "Wprowadź poprawny adres e-mail."
+
+msgid "Don't have an account? Sign up"
+msgstr "Nie masz konta? Zarejestruj się"

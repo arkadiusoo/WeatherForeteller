@@ -2,35 +2,44 @@
 {% load i18n %}
 {% load crispy_forms_tags %}
 
-{% block title %}Zaloguj się{% endblock %}
+{% block title %}{% trans "Zaloguj się" %}{% endblock %}
 
 {% block content %}
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
   <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%; border-radius: 1rem;">
-    <h3 class="text-center mb-4">{% trans "Zaloguj się" %}</h3>
+    <h3 class="text-center mb-4">{% trans "Zaloguja się" %}</h3>
 
     <form method="POST" action="{% url 'account_login' %}">
       {% csrf_token %}
 
-{% for field in form %}
-  <div class="mb-3">
-    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-    <input
-      type="{{ field.field.widget.input_type|default:'text' }}"
-      name="{{ field.html_name }}"
-      id="{{ field.id_for_label }}"
-      value="{{ field.value|default:'' }}"
-      class="form-control{% if field.errors %} is-invalid{% endif %}"
-      placeholder="{{ field.label }}"
-      {% if field.field.required %}required{% endif %}
-    >
-    {% if field.errors %}
-      <div class="invalid-feedback">
-        {{ field.errors|striptags }}
+      {% for field in form %}
+        <div class="mb-3">
+          <label for="{{ field.id_for_label }}" class="form-label">
+            {% trans field.label %}
+          </label>
+          <input
+            type="{{ field.field.widget.input_type|default:'text' }}"
+            name="{{ field.html_name }}"
+            id="{{ field.id_for_label }}"
+            value="{{ field.value|default:'' }}"
+            class="form-control{% if field.errors %} is-invalid{% endif %}"
+            placeholder="{% trans field.label %}"
+            {% if field.field.required %}required{% endif %}
+          >
+          {% if field.errors %}
+            <div class="invalid-feedback">
+              {{ field.errors|striptags }}
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+
+      <div class="d-grid mt-3">
+        <button type="submit" class="btn btn-primary">
+          {% trans "Zaloguj się" %}
+        </button>
       </div>
-    {% endif %}
-  </div>
-{% endfor %}
+    </form>
 
     <p class="mt-3 text-center">
       <a href="{% url 'account_reset_password' %}">{% trans "Nie pamiętasz hasła?" %}</a>

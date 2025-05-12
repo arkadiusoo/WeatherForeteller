@@ -131,7 +131,9 @@ LANGUAGES = [
     ('pl', 'Polski'),
     ('en', 'English'),
 ]
-
+LOCALE_PATHS = [
+    BASE_DIR / "locale",  # lub os.path.join(BASE_DIR, "locale")
+]
 # https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
 TIME_ZONE = "UTC"
 
