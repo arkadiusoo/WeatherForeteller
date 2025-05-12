@@ -57,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",  # django-allauth
+    'django.middleware.locale.LocaleMiddleware', #obsługa języków
 ]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
@@ -124,7 +125,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 # https://docs.djangoproject.com/en/dev/ref/settings/#language-code
 # LANGUAGE_CODE = "en-us"
-LANGUAGE_CODE = "pl"
+LANGUAGE_CODE = 'pl'
+
+LANGUAGES = [
+    ('pl', 'Polski'),
+    ('en', 'English'),
+]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
 TIME_ZONE = "UTC"
