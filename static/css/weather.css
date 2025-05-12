@@ -1,0 +1,50 @@
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  background: linear-gradient(to bottom, #e0f7fa, #ffffff);
+  margin: 0;
+  padding: 2rem;
+  text-align: center;
+  color: #333;
+}
+
+main {
+  max-width: 600px;
+  margin: auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+input[type="text"] {
+  padding: 0.7rem;
+  width: 60%;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+button {
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  margin-left: 1rem;
+  background-color: #0288d1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0277bd;
+}
+
+.current-weather {
+  margin-top: 2rem;
+}
+
+.current-weather h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
