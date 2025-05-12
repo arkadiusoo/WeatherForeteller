@@ -4,22 +4,17 @@
 {% block title %}Home page{% endblock title %}
 
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
-  <div class="card shadow-lg p-4" style="max-width: 700px; width: 100%; border-radius: 1rem;">
-    <h1 class="text-center mb-3">Weather Foreteller</h1>
+<div class="container-fluid py-5">
 
-    <div class="mb-5">
-      <h4 class="mb-3 text-center">Prześlij plik CSV</h4>
-      <form method="POST" enctype="multipart/form-data" class="text-center">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-primary mt-2" type="submit">Prześlij</button>
-      </form>
-    </div>
+  <h1 class="text-center mb-5">Weather Foreteller</h1>
 
-    <div>
+  <div class="row justify-content-center px-5 gx-5">
+
+    <!-- Historia plików -->
+    <div class="col-lg-3">
       <h4 class="mb-3 text-center">Twoje pliki</h4>
-      {% if user_csvs %}
+      <div class="bg-white p-4 rounded shadow-sm">
+        {% if user_csvs %}
         <ul class="list-group list-group-flush">
           {% for csv in user_csvs %}
           <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -28,10 +23,46 @@
           </li>
           {% endfor %}
         </ul>
-      {% else %}
-        <p class="text-muted text-center mb-0">Nie przesłałeś jeszcze żadnych plików.</p>
-      {% endif %}
+        {% else %}
+        <p class="text-muted text-center">Nie przesłałeś jeszcze żadnych plików.</p>
+        {% endif %}
+      </div>
     </div>
+
+    <!-- Przesyłanie pliku -->
+    <div class="col-lg-4">
+      <h4 class="mb-3 text-center">Prześlij plik CSV</h4>
+      <div class="bg-white p-4 rounded shadow-sm">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <div class="d-grid mt-3">
+            <button class="btn btn-primary" type="submit">Prześlij</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Wynik prognozy -->
+    <div class="col-lg-5">
+      <h4 class="mb-3 text-center">Prognoza</h4>
+      <div class="bg-white p-4 rounded shadow-sm">
+        {% if prediction_table %}
+        <div class="table-responsive">
+          {{ prediction_table|safe }}
+        </div>
+        {% else %}
+        <p class="text-muted text-center">Tutaj pojawi się prognoza po przesłaniu pliku.</p>
+        {% endif %}
+
+        {% if chart_html %}
+        <div class="mt-4">
+          {{ chart_html|safe }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
   </div>
 </div>
 {% endblock content %}
