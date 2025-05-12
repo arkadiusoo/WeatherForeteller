@@ -1,5 +1,6 @@
 {% extends "_base.html" %}
 {% load i18n %}
+{% load crispy_forms_tags %}
 
 {% block title %}Zaloguj się{% endblock %}
 
@@ -10,7 +11,18 @@
 
     <form method="POST" action="{% url 'account_login' %}">
       {% csrf_token %}
-      {{ form.as_p }}
+
+      {% for field in form %}
+        {% if field.name == 'password' %}
+          <div class="mb-3">
+            {{ field.label_tag }}
+            {{ field }}
+          </div>
+        {% else %}
+          {{ field|as_crispy_field }}
+        {% endif %}
+      {% endfor %}
+
       <div class="d-grid mt-3">
         <button type="submit" class="btn btn-primary">{% trans "Zaloguj się" %}</button>
       </div>
