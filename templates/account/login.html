@@ -7,7 +7,7 @@
 {% block content %}
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
   <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%; border-radius: 1rem;">
-    <h3 class="text-center mb-4">{% trans "Zaloguja się" %}</h3>
+    <h3 class="text-center mb-4">{% trans "Zaloguj się" %}</h3>
 
     <form method="POST" action="{% url 'account_login' %}">
       {% csrf_token %}
