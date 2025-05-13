@@ -128,7 +128,7 @@ def predictor(ts):
 
     # Prepare and scale input sequences
     vals_temp = ts['T (degC)'].values.reshape(-1, 1)
-    vals_hum  = ts['relative_humidity_2m'].values.reshape(-1, 1)
+    vals_hum  = ts['humidity'].values.reshape(-1, 1)
     scaled_temp = scaler_temp.transform(vals_temp).flatten().tolist()
     scaled_hum  = scaler_hum.transform(vals_hum).flatten().tolist()
 
