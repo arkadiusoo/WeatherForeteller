@@ -14,9 +14,9 @@ class TemperatureForecast(models.Model):
     source_type = models.CharField(max_length=20, choices=[('csv', 'CSV'), ('city', 'City')])
     source_name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
-    time_list = models.JSONField()
-    temperature_list = models.JSONField()
-    humidity_list = models.JSONField()
+    time_list = models.JSONField(default=list)
+    temperature_list = models.JSONField(default=list)
+    humidity_list = models.JSONField(default=list)
 
     def __str__(self):
         return f"{self.source_type.upper()} Forecast for {self.source_name} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"

@@ -41,50 +41,9 @@ def predict_from_csv(path: str):
     df['Date Time'] = pd.to_datetime(df['Date Time'], format='%d.%m.%Y %H:%M:%S')
     df.set_index('Date Time', inplace=True)
 
-    hourly = df.resample('h').mean()
-    ts = hourly['T (degC)'].dropna()
+    ts = df['T (degC)'].dropna()
 
-    if len(ts) < WINDOW_SIZE:
-        raise ValueError(f"Not enough data (min. {WINDOW_SIZE} hours required), only {len(ts)} available")
-
-    models_dir = os.path.join(settings.BASE_DIR, 'saved-models')
-    scaler_path = os.path.join(models_dir, 'scaler_temp.pkl')
-    model_path  = os.path.join(models_dir, 'model_temp.pth')
-
-    with open(scaler_path, 'rb') as f:
-        scaler = pickle.load(f)
-
-    model = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(DEVICE)
-    model.load_state_dict(torch.load(model_path, map_location=DEVICE))
-    model.eval()
-
-    # Prepare input sequence
-    vals = ts.values.reshape(-1, 1)
-    scaled = scaler.transform(vals)
-
-    window_seq = list(scaled[-WINDOW_SIZE:].flatten())
-
-    # Iteratively predict PREDICT_HORIZON points
-    preds_scaled = []
-    for _ in range(PREDICT_HORIZON):
-        x = np.array(window_seq[-WINDOW_SIZE:]).reshape(1, WINDOW_SIZE, 1)
-        x_tensor = torch.tensor(x, dtype=torch.float32, device=DEVICE)
-        with torch.no_grad():
-            p = model(x_tensor).cpu().numpy().flatten()[0]
-        preds_scaled.append(p)
-        window_seq.append(p)
-
-    # Invert scaling
-    preds = scaler.inverse_transform(np.array(preds_scaled).reshape(-1, 1)).flatten()
-
-    # Generate list of times based on the last timestamp
-    last_time = ts.index[-1]
-    time_list = [
-        (last_time + pd.Timedelta(hours=i + 1)).strftime('%H.%M')
-        for i in range(PREDICT_HORIZON)
-    ]
-    temp_list = preds.tolist()
-
+    time_list, temp_list = predictor(ts)
     return time_list, temp_list
 
 def getCityData(city: str):
@@ -135,7 +94,56 @@ def getCityData(city: str):
 
     for i in last_48_hours:
         time.append(i['time'])
-        temp.append(i['temp'])
+        temp.append(i['temp_c'])
         humidity.append(i['humidity'])
 
-    return time,temp,humidity
+    df = pd.DataFrame({'Date Time': time, 'T (degC)': temp, 'humidity': humidity})
+    df['Date Time'] = pd.to_datetime(df['Date Time'], format='%Y-%m-%d %H:%M')
+    df.set_index('Date Time', inplace=True)
+    ts = df['T (degC)'].dropna()
+    time_list, temp_list = predictor(ts)
+    return time_list, temp_list
+
+def predictor(ts):
+    if len(ts) < WINDOW_SIZE:
+        raise ValueError(f"Not enough data (min. {WINDOW_SIZE} hours required), only {len(ts)} available")
+
+    models_dir = os.path.join(settings.BASE_DIR, 'saved-models')
+    scaler_path = os.path.join(models_dir, 'scaler_temp.pkl')
+    model_path  = os.path.join(models_dir, 'model_temp.pth')
+
+    with open(scaler_path, 'rb') as f:
+        scaler = pickle.load(f)
+
+    model = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(DEVICE)
+    model.load_state_dict(torch.load(model_path, map_location=DEVICE))
+    model.eval()
+
+    # Prepare input sequence
+    vals = ts.values.reshape(-1, 1)
+    scaled = scaler.transform(vals)
+
+    window_seq = list(scaled[-WINDOW_SIZE:].flatten())
+
+    # Iteratively predict PREDICT_HORIZON points
+    preds_scaled = []
+    for _ in range(PREDICT_HORIZON):
+        x = np.array(window_seq[-WINDOW_SIZE:]).reshape(1, WINDOW_SIZE, 1)
+        x_tensor = torch.tensor(x, dtype=torch.float32, device=DEVICE)
+        with torch.no_grad():
+            p = model(x_tensor).cpu().numpy().flatten()[0]
+        preds_scaled.append(p)
+        window_seq.append(p)
+
+    # Invert scaling
+    preds = scaler.inverse_transform(np.array(preds_scaled).reshape(-1, 1)).flatten()
+
+    # Generate list of times based on the last timestamp
+    last_time = ts.index[-1]
+    time_list = [
+        (last_time + pd.Timedelta(hours=i + 1)).strftime('%H.%M')
+        for i in range(PREDICT_HORIZON)
+    ]
+    temp_list = preds.tolist()
+
+    return time_list, temp_list
