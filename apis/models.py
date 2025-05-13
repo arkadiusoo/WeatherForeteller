@@ -11,6 +11,7 @@ class UploadedCSV(models.Model):
         return f"CSV uploaded at: {self.uploaded_at} - {self.user.username}"
 
 class TemperatureForecast(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='temperature_forecasts', null=True, blank=True)
     source_type = models.CharField(max_length=20, choices=[('csv', 'CSV'), ('city', 'City')])
     source_name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
