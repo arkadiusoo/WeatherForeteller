@@ -41,10 +41,8 @@ def predict_from_csv(path: str):
     df['Date Time'] = pd.to_datetime(df['Date Time'], format='%d.%m.%Y %H:%M:%S')
     df.set_index('Date Time', inplace=True)
 
-    ts = df['T (degC)'].dropna()
-
-    time_list, temp_list, _ = predictor(ts)
-    return time_list, temp_list
+    time_list, temp_list, hum_list = predictor(df)
+    return time_list, temp_list, hum_list
 
 def getCityData(city: str):
     api_key = "d0c5fc84e556463389a220217251205"
@@ -100,9 +98,9 @@ def getCityData(city: str):
     df = pd.DataFrame({'Date Time': time, 'T (degC)': temp, 'humidity': humidity})
     df['Date Time'] = pd.to_datetime(df['Date Time'], format='%Y-%m-%d %H:%M')
     df.set_index('Date Time', inplace=True)
-    ts = df['T (degC)'].dropna()
-    time_list, temp_list, _ = predictor(ts)
-    return time_list, temp_list
+
+    time_list, temp_list, hum_list = predictor(df)
+    return time_list, temp_list, hum_list
 
 def predictor(ts):
     models_dir   = os.path.join(settings.BASE_DIR, 'saved-models')
