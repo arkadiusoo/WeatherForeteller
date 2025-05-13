@@ -43,7 +43,7 @@ def predict_from_csv(path: str):
 
     ts = df['T (degC)'].dropna()
 
-    time_list, temp_list = predictor(ts)
+    time_list, temp_list, _ = predictor(ts)
     return time_list, temp_list
 
 def getCityData(city: str):
@@ -101,49 +101,75 @@ def getCityData(city: str):
     df['Date Time'] = pd.to_datetime(df['Date Time'], format='%Y-%m-%d %H:%M')
     df.set_index('Date Time', inplace=True)
     ts = df['T (degC)'].dropna()
-    time_list, temp_list = predictor(ts)
+    time_list, temp_list, _ = predictor(ts)
     return time_list, temp_list
 
 def predictor(ts):
-    if len(ts) < WINDOW_SIZE:
-        raise ValueError(f"Not enough data (min. {WINDOW_SIZE} hours required), only {len(ts)} available")
+    models_dir   = os.path.join(settings.BASE_DIR, 'saved-models')
+    # Paths for temperature
+    scaler_temp_path = os.path.join(models_dir, 'scaler_temp.pkl')
+    model_temp_path  = os.path.join(models_dir, 'model_temp.pth')
+    # Paths for humidity
+    scaler_hum_path  = os.path.join(models_dir, 'scaler_humidity.pkl')
+    model_hum_path   = os.path.join(models_dir, 'model_humidity.pth')
 
-    models_dir = os.path.join(settings.BASE_DIR, 'saved-models')
-    scaler_path = os.path.join(models_dir, 'scaler_temp.pkl')
-    model_path  = os.path.join(models_dir, 'model_temp.pth')
+    # Load scalers
+    with open(scaler_temp_path, 'rb') as f:
+        scaler_temp = pickle.load(f)
+    with open(scaler_hum_path, 'rb') as f:
+        scaler_hum  = pickle.load(f)
 
-    with open(scaler_path, 'rb') as f:
-        scaler = pickle.load(f)
+    # Load models
+    model_temp = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(DEVICE)
+    model_temp.load_state_dict(torch.load(model_temp_path, map_location=DEVICE))
+    model_temp.eval()
 
-    model = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(DEVICE)
-    model.load_state_dict(torch.load(model_path, map_location=DEVICE))
-    model.eval()
+    model_hum  = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(DEVICE)
+    model_hum.load_state_dict(torch.load(model_hum_path, map_location=DEVICE))
+    model_hum.eval()
 
-    # Prepare input sequence
-    vals = ts.values.reshape(-1, 1)
-    scaled = scaler.transform(vals)
+    # Prepare and scale input sequences
+    vals_temp = ts['T (degC)'].values.reshape(-1, 1)
+    vals_hum  = ts['humidity'].values.reshape(-1, 1)
+    scaled_temp = scaler_temp.transform(vals_temp).flatten().tolist()
+    scaled_hum  = scaler_hum.transform(vals_hum).flatten().tolist()
 
-    window_seq = list(scaled[-WINDOW_SIZE:].flatten())
+    # Rolling window predictions
+    preds_temp_scaled = []
+    preds_hum_scaled  = []
+    seq_temp = scaled_temp.copy()
+    seq_hum  = scaled_hum.copy()
 
-    # Iteratively predict PREDICT_HORIZON points
-    preds_scaled = []
     for _ in range(PREDICT_HORIZON):
-        x = np.array(window_seq[-WINDOW_SIZE:]).reshape(1, WINDOW_SIZE, 1)
-        x_tensor = torch.tensor(x, dtype=torch.float32, device=DEVICE)
+        # Temperature prediction
+        x_temp = np.array(seq_temp[-WINDOW_SIZE:]).reshape(1, WINDOW_SIZE, 1)
+        t_temp = torch.tensor(x_temp, dtype=torch.float32, device=DEVICE)
         with torch.no_grad():
-            p = model(x_tensor).cpu().numpy().flatten()[0]
-        preds_scaled.append(p)
-        window_seq.append(p)
+            p_temp = model_temp(t_temp).cpu().numpy().flatten()[0]
+        preds_temp_scaled.append(p_temp)
+        seq_temp.append(p_temp)
+
+        # Humidity prediction
+        x_hum = np.array(seq_hum[-WINDOW_SIZE:]).reshape(1, WINDOW_SIZE, 1)
+        t_hum = torch.tensor(x_hum, dtype=torch.float32, device=DEVICE)
+        with torch.no_grad():
+            p_hum = model_hum(t_hum).cpu().numpy().flatten()[0]
+        preds_hum_scaled.append(p_hum)
+        seq_hum.append(p_hum)
 
     # Invert scaling
-    preds = scaler.inverse_transform(np.array(preds_scaled).reshape(-1, 1)).flatten()
+    preds_temp = scaler_temp.inverse_transform(
+        np.array(preds_temp_scaled).reshape(-1, 1)
+    ).flatten().tolist()
+    preds_hum  = scaler_hum.inverse_transform(
+        np.array(preds_hum_scaled).reshape(-1, 1)
+    ).flatten().tolist()
 
-    # Generate list of times based on the last timestamp
+    # Build time indices for forecasts
     last_time = ts.index[-1]
     time_list = [
         (last_time + pd.Timedelta(hours=i + 1)).strftime('%H.%M')
         for i in range(PREDICT_HORIZON)
     ]
-    temp_list = preds.tolist()
 
-    return time_list, temp_list
+    return time_list, preds_temp, preds_hum

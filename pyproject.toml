@@ -10,6 +10,10 @@ dependencies = [
   "gunicorn ~=23.0",
   "psycopg[binary] ~=3.2",
   "whitenoise ~=6.7",
+  "djangorestframework>=3.16.0",
+  "drf-spectacular>=0.28.0",
+  "torch>=2.7.0",
+  "pandas>=2.2.3",
 ]
 
 [dependency-groups]
