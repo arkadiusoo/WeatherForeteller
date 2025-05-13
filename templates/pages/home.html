@@ -13,7 +13,7 @@
     <!-- Twoje pliki CSV -->
     <div class="col-lg-3">
       <h4 class="mb-3 text-center">Twoje pliki</h4>
-      <div class="bg-white p-4 rounded shadow-sm">
+      <div class="bg-white p-4 rounded shadow-sm" style="max-height: 400px; overflow-y: auto;">
         {% if user_csvs %}
         <ul class="list-group list-group-flush">
           {% for csv in user_csvs %}
@@ -61,30 +61,51 @@
       </div>
     </div>
 
-    <!-- Wynik prognozy -->
-    <div class="col-lg-5">
-      <h4 class="mb-3 text-center">Prognoza</h4>
-      <div class="bg-white p-4 rounded shadow-sm">
-        {% if prediction_table %}
-        <div class="table-responsive">
-          {{ prediction_table|safe }}
-        </div>
-        {% else %}
-        <p class="text-muted text-center">Tutaj pojawi się prognoza po przesłaniu pliku lub wpisaniu miasta.</p>
-        {% endif %}
+    <!-- Twoje prognozy -->
+    <div class="col-lg-3">
+      <h4 class="mb-3 text-center">Twoje prognozy</h4>
+      <div class="bg-white p-4 rounded shadow-sm" style="max-height: 400px; overflow-y: auto;">
+        {% if user_forecasts %}
+        <ul class="list-group list-group-flush">
+          {% for forecast in user_forecasts %}
+          <li class="list-group-item">
+            <div class="d-flex flex-column">
+              <div class="mb-2">
+                <strong>{{ forecast.source_name }}</strong><br>
+                <small class="text-muted">{{ forecast.created_at|date:"Y-m-d H:i" }}</small>
+              </div>
 
-        {% if chart_html %}
-        <div class="mt-4">
-          {{ chart_html|safe }}
-        </div>
+              <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-primary toggle-details-btn" data-forecast-id="{{ forecast.id }}">
+                  Details
+                </button>
+                <a href="/api/forecasts/{{ forecast.id }}/download/" class="btn btn-sm btn-outline-success">
+                  Download
+                </a>
+              </div>
+
+              <!-- Ukryty div ze szczegółami -->
+              <div id="details-{{ forecast.id }}" class="forecast-details mt-3" style="display: none;">
+                <ul class="list-group">
+                  {% for time, temp in forecast.pairs %}
+                  <li class="list-group-item p-1 small">
+                    {{ time }} — {{ temp }}°C
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center">Nie masz jeszcze żadnej prognozy.</p>
         {% endif %}
       </div>
     </div>
 
   </div>
 </div>
-{% endblock content %}
 
-{% block extra_scripts %}
-<script src="{% static 'js/scripts.js' %}"></script>
-{% endblock %}
+{% endblock content %}

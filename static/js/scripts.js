@@ -99,3 +99,23 @@ document.addEventListener('DOMContentLoaded', function () {
         return cookieValue;
     }
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  const detailButtons = document.querySelectorAll('.toggle-details-btn');
+
+  detailButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+      const forecastId = button.getAttribute('data-forecast-id');
+      const detailsDiv = document.getElementById(`details-${forecastId}`);
+
+      if (detailsDiv.style.display === 'none') {
+        detailsDiv.style.display = 'block';
+        button.textContent = 'Hide';
+      } else {
+        detailsDiv.style.display = 'none';
+        button.textContent = 'Details';
+      }
+    });
+  });
+});
