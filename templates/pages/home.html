@@ -4,32 +4,108 @@
 {% block title %}Home page{% endblock title %}
 
 {% block content %}
-<h1 class="text-center">Home page</h1>
+<div class="container-fluid py-5">
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-6">
-            <h3>Upload a CSV file</h3>
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button class="btn btn-primary" type="submit">Upload</button>
-            </form>
-        </div>
+  <h1 class="text-center mb-5">Weather Foreteller</h1>
 
-        <div class="col-md-6">
-            <h3>Your Uploaded Files</h3>
-            <ul class="list-group">
-                {% for csv in user_csvs %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ csv.file.name|cut:"csv_files/" }}
-                        <span class="badge badge-secondary">{{ csv.uploaded_at|date:"Y-m-d H:i" }}</span>
-                    </li>
-                {% empty %}
-                    <li class="list-group-item">You haven't uploaded any CSV files yet.</li>
-                {% endfor %}
-            </ul>
-        </div>
+  <div class="row justify-content-center px-5 gx-5">
+
+    <!-- Twoje pliki CSV -->
+    <div class="col-lg-3">
+      <h4 class="mb-3 text-center">Twoje pliki</h4>
+      <div class="bg-white p-4 rounded shadow-sm" style="max-height: 400px; overflow-y: auto;">
+        {% if user_csvs %}
+        <ul class="list-group list-group-flush">
+          {% for csv in user_csvs %}
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                {{ csv.file.name|cut:"csv_files/" }}<br>
+                <small class="text-muted">{{ csv.uploaded_at|date:"Y-m-d H:i" }}</small>
+              </div>
+              <!-- Przycisk do generowania prognozy CSV -->
+              <button type="button" class="btn btn-sm btn-success generate-forecast-csv-btn" data-csv-id="{{ csv.id }}">
+                Generuj
+              </button>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center">Nie przesłałeś jeszcze żadnych plików.</p>
+        {% endif %}
+      </div>
     </div>
+
+    <!-- Przesyłanie pliku + Generowanie po mieście -->
+    <div class="col-lg-4">
+      <h4 class="mb-3 text-center">Prześlij plik CSV</h4>
+      <div class="bg-white p-4 rounded shadow-sm mb-4">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <div class="d-grid mt-3">
+            <button class="btn btn-primary" type="submit">Prześlij</button>
+          </div>
+        </form>
+      </div>
+
+      <h4 class="mb-3 text-center">Generowanie pogody dla miasta</h4>
+      <div class="bg-white p-4 rounded shadow-sm">
+        <div class="d-flex">
+          <input type="text" id="city-name-input" class="form-control me-2" placeholder="Wpisz nazwę miasta">
+          <button type="button" id="generate-city-btn" class="btn btn-sm btn-success">
+            Generuj
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Twoje prognozy -->
+    <div class="col-lg-3">
+      <h4 class="mb-3 text-center">Twoje prognozy</h4>
+      <div class="bg-white p-4 rounded shadow-sm" style="max-height: 400px; overflow-y: auto;">
+        {% if user_forecasts %}
+        <ul class="list-group list-group-flush">
+          {% for forecast in user_forecasts %}
+          <li class="list-group-item">
+            <div class="d-flex flex-column">
+              <div class="mb-2">
+                <strong>{{ forecast.source_name }}</strong><br>
+                <small class="text-muted">{{ forecast.created_at|date:"Y-m-d H:i" }}</small>
+              </div>
+
+              <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-primary toggle-details-btn" data-forecast-id="{{ forecast.id }}">
+                  Details
+                </button>
+                <a href="/api/forecasts/{{ forecast.id }}/download/" class="btn btn-sm btn-outline-success">
+                  Download
+                </a>
+              </div>
+
+              <!-- Ukryty div ze szczegółami -->
+              <div id="details-{{ forecast.id }}" class="forecast-details mt-3" style="display: none;">
+                <ul class="list-group">
+                  {% for time, temp in forecast.pairs %}
+                  <li class="list-group-item p-1 small">
+                    {{ time }} — {{ temp }}°C
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center">Nie masz jeszcze żadnej prognozy.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
 </div>
+
 {% endblock content %}
