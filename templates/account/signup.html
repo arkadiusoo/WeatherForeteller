@@ -1,4 +1,5 @@
 {% extends '_base.html' %}
+{% load i18n %}
 {% load crispy_forms_tags %}
 
 {% block title %}Zarejestruj się{% endblock %}
@@ -6,19 +7,19 @@
 {% block content %}
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
   <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%; border-radius: 1rem;">
-    <h3 class="text-center mb-4">Zarejestruj się</h3>
+    <h3 class="text-center mb-4">{% trans 'Sign up' %}</h3>
 
     <form method="post" action="{% url 'account_signup' %}">
       {% csrf_token %}
       {{ form|crispy }}
 
       <div class="d-grid mt-3">
-        <button type="submit" class="btn btn-success">Zarejestruj</button>
+        <button type="submit" class="btn btn-success">{% trans 'Sign up' %}</button>
       </div>
     </form>
 
     <p class="mt-3 text-center">
-      Masz już konto? <a href="{% url 'account_login' %}">Zaloguj się</a>
+      <a href="{% url 'account_login' %}">{% trans "Log in" %}</a>
     </p>
   </div>
 </div>
