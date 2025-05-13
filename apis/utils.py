@@ -1,10 +1,12 @@
 import os
 import pickle
+from datetime import datetime, timedelta
 
 import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
+import requests
 
 from django.conf import settings
 
@@ -45,7 +47,6 @@ def predict_from_csv(path: str):
     if len(ts) < WINDOW_SIZE:
         raise ValueError(f"Not enough data (min. {WINDOW_SIZE} hours required), only {len(ts)} available")
 
-    # Load scaler and model
     models_dir = os.path.join(settings.BASE_DIR, 'saved-models')
     scaler_path = os.path.join(models_dir, 'scaler_temp.pkl')
     model_path  = os.path.join(models_dir, 'model_temp.pth')
@@ -85,3 +86,56 @@ def predict_from_csv(path: str):
     temp_list = preds.tolist()
 
     return time_list, temp_list
+
+def getCityData(city: str):
+    api_key = "d0c5fc84e556463389a220217251205"
+    now = datetime.now()
+    today = now.date()
+    yesterday = (now - timedelta(days=1)).date()
+    yesterday_2 = (now - timedelta(days=2)).date()
+
+    url_yesterday_2 = f"http://api.weatherapi.com/v1/history.json?key={api_key}&q={city}&dt={yesterday_2}"
+    url_yesterday = f"http://api.weatherapi.com/v1/history.json?key={api_key}&q={city}&dt={yesterday}"
+    url_today = f"http://api.weatherapi.com/v1/history.json?key={api_key}&q={city}&dt={today}"
+
+    response_yesterday_2 = requests.get(url_yesterday_2)
+    response_yesterday = requests.get(url_yesterday)
+    response_today = requests.get(url_today)
+
+    if response_yesterday.status_code != 200:
+        raise Exception(
+            f"Error fetching yesterday's data: {response_yesterday.status_code} - {response_yesterday.text}")
+    if response_today.status_code != 200:
+        raise Exception(f"Error fetching today's data: {response_today.status_code} - {response_today.text}")
+    if response_yesterday_2.status_code != 200:
+        raise Exception(
+            f"Error fetching yesterday's data: {response_yesterday_2.status_code} - {response_yesterday_2.text}")
+
+
+    data_yesterday_2 = response_yesterday_2.json()
+    data_yesterday = response_yesterday.json()
+    data_today = response_today.json()
+
+    hours_yesterday_2 = data_yesterday_2['forecast']['forecastday'][0]['hour']
+    hours_yesterday = data_yesterday['forecast']['forecastday'][0]['hour']
+    hours_today = data_today['forecast']['forecastday'][0]['hour']
+
+    current_hour = now.hour + 2
+    hours_today_filtered = [
+        h for h in hours_today
+        if int(h['time'][-5:-3]) <= current_hour
+    ]
+
+    combined_hours = hours_yesterday_2 +hours_yesterday + hours_today_filtered
+
+    last_48_hours = combined_hours[-48:]
+    time = []
+    temp = []
+    humidity = []
+
+    for i in last_48_hours:
+        time.append(i['time'])
+        temp.append(i['temp'])
+        humidity.append(i['humidity'])
+
+    return time,temp,humidity

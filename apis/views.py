@@ -9,7 +9,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiRespon
 
 from .models import UploadedCSV, TemperatureForecast
 
-from .utils import predict_from_csv
+from .utils import predict_from_csv, getCityData
 
 
 class UploadCSVView(APIView):
@@ -72,16 +72,14 @@ class PredictFromCSVView(APIView):
 
         path = os.path.join(csv_file.file.storage.location, csv_file.file.name)
 
-        time_list, temp_list = predict_from_csv(path)
-
-        time_list = ["19.00", "20.00", "21.00", "22.00", "23.00"]
-        temp_list = [1.8, 2.8, 3.8, 4.8, 5.8]
+        time_list, temp_list, hum_list = predict_from_csv(path)
 
         obj = TemperatureForecast.objects.create(
             source_type='csv',
             source_name=f'CSV #{csv_file.id}',
             time_list=time_list,
-            temperature_list=temp_list
+            temperature_list=temp_list,
+            humidity_list=hum_list
         )
 
         return Response({
@@ -107,14 +105,15 @@ class PredictFromCityView(APIView):
         if not city:
             return Response({'error': 'City is required'}, status=400)
 
-        time_list = ["19.00", "20.00", "21.00", "22.00", "23.00"]
-        temp_list = [1.8, 2.8, 3.8, 4.8, 5.8]
+        time_list, temp_list, hum_list = getCityData(city)
+
 
         obj = TemperatureForecast.objects.create(
             source_type='city',
             source_name=city,
             time_list=time_list,
-            temperature_list=temp_list
+            temperature_list=temp_list,
+            humidity_list=hum_list
         )
 
         return Response({
