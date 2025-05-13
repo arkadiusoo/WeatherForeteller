@@ -49,11 +49,11 @@ msgstr "Log in"
 
 #: templates/account/login.html:45
 msgid "Nie pamiętasz hasła?"
-msgstr ""
+msgstr "Forgot your password?"
 
 #: templates/account/login.html:48
 msgid "Nie masz konta? Zarejestruj się"
-msgstr ""
+msgstr "Don't have an account? Sign up"
 
 #: templates/account/password_reset.html:5
 #: templates/account/password_reset.html:10
@@ -85,8 +85,8 @@ msgstr "Zmień hasło"
 #~ msgid "Email"
 #~ msgstr "Adres e-mail"
 
-#~ msgid "Sign up"
-#~ msgstr "Zarejestruj się"
+msgid "Zarejestruj się"
+msgstr "Sign up"
 
 #~ msgid "Log out"
 #~ msgstr "Wyloguj się"
