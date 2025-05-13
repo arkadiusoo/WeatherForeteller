@@ -72,8 +72,7 @@ class PredictFromCSVView(APIView):
 
         path = os.path.join(csv_file.file.storage.location, csv_file.file.name)
 
-        time_list, temp_list = predict_from_csv(path)
-        hum_list = [0,0,0,0,0,0]
+        time_list, temp_list, hum_list = predict_from_csv(path)
 
         obj = TemperatureForecast.objects.create(
             source_type='csv',
@@ -87,7 +86,8 @@ class PredictFromCSVView(APIView):
             'id': obj.id,
             'source': obj.source_name,
             'time': time_list,
-            'temperature': temp_list
+            'temperature': temp_list,
+            'humidity': hum_list
         }, status=201)
 
 
@@ -106,8 +106,7 @@ class PredictFromCityView(APIView):
         if not city:
             return Response({'error': 'City is required'}, status=400)
 
-        time_list, temp_list = getCityData(city)
-        hum_list = [0,0,0,0,0,0]
+        time_list, temp_list, hum_list = getCityData(city)
 
         obj = TemperatureForecast.objects.create(
             source_type='city',

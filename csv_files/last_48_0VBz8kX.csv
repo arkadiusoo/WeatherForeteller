@@ -1,4 +1,4 @@
-Date Time,T (degC),humidity
+Date Time,T (degC),relative_humidity_2m
 01.01.2009 00:10:00,-8.02,95
 01.01.2009 00:30:00,-8.51,92
 01.01.2009 00:20:00,-8.41,90

@@ -103,7 +103,7 @@ def getCityData(city: str):
     return time_list, temp_list, hum_list
 
 def predictor(ts):
-    models_dir   = os.path.join(settings.BASE_DIR, 'saved-models')
+    models_dir   = os.path.join(settings.BASE_DIR, 'prediction-models/saved-models')
     # Paths for temperature
     scaler_temp_path = os.path.join(models_dir, 'scaler_temp.pkl')
     model_temp_path  = os.path.join(models_dir, 'model_temp.pth')
@@ -128,7 +128,7 @@ def predictor(ts):
 
     # Prepare and scale input sequences
     vals_temp = ts['T (degC)'].values.reshape(-1, 1)
-    vals_hum  = ts['humidity'].values.reshape(-1, 1)
+    vals_hum  = ts['relative_humidity_2m'].values.reshape(-1, 1)
     scaled_temp = scaler_temp.transform(vals_temp).flatten().tolist()
     scaled_hum  = scaler_hum.transform(vals_hum).flatten().tolist()
 
