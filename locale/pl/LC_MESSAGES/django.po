@@ -69,3 +69,52 @@ msgstr "Zarejestruj się"
 
 msgid "Already have an account?"
 msgstr "Masz już konto?"
+
+msgid "Weather Foreteller"
+msgstr "Pogodynka"
+
+msgid "Your files"
+msgstr "Twoje pliki"
+
+msgid "You haven't uploaded any files yet."
+msgstr "Nie przesłałeś jeszcze żadnych plików."
+
+msgid "Upload a CSV file"
+msgstr "Prześlij plik CSV"
+
+msgid "Upload"
+msgstr "Prześlij"
+
+msgid "Generate forecast by city"
+msgstr "Generowanie pogody dla miasta"
+
+msgid "Enter city name"
+msgstr "Wpisz nazwę miasta"
+
+msgid "Generate"
+msgstr "Generuj"
+
+msgid "Your forecasts"
+msgstr "Twoje prognozy"
+
+msgid "Details"
+msgstr "Szczegóły"
+
+msgid "Download"
+msgstr "Pobierz"
+
+msgid "Humidity"
+msgstr "Wilgotność"
+
+msgid "You don't have any forecasts yet."
+msgstr "Nie masz jeszcze żadnej prognozy."
+
+msgid "Previous"
+msgstr "Poprzedni"
+
+msgid "Next"
+msgstr "Następny"
+
+msgid "Home page"
+msgstr "Strona startowa"
+
