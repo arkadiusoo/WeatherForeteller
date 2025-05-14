@@ -118,3 +118,5 @@ msgstr "Następny"
 msgid "Home page"
 msgstr "Strona startowa"
 
+msgid "Logout"
+msgstr "Wyloguj się"
