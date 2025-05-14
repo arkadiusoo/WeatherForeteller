@@ -1,7 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
+{% load i18n %}
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
@@ -29,7 +29,7 @@
   {% if user.is_authenticated %}
     <form method="post" action="{% url 'account_logout' %}" class="d-flex me-2">
       {% csrf_token %}
-      <button type="submit" class="btn btn-outline-danger btn-sm">Wyloguj się</button>
+      <button type="submit" class="btn btn-outline-danger btn-sm">{% trans "Logout"  %}</button>
     </form>
   {% endif %}
 
