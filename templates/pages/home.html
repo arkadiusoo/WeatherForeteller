@@ -1,5 +1,6 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block title %}Home page{% endblock title %}
 
@@ -20,7 +21,7 @@
           <li class="list-group-item">
             <div class="d-flex justify-content-between align-items-center">
               <div>
-                {{ csv.file.name|cut:"csv_files/" }}<br>
+           {{ csv.file.name|cut:"csv_files/"|clean_after_last_underscore }}<br>
                 <small class="text-muted">{{ csv.uploaded_at|date:"Y-m-d H:i" }}</small>
               </div>
               <!-- Przycisk do generowania prognozy CSV -->
@@ -71,7 +72,7 @@
           <li class="list-group-item">
             <div class="d-flex flex-column">
               <div class="mb-2">
-                <strong>{{ forecast.source_name }}</strong><br>
+                <strong>{{ forecast.source_name|cut:"csv_files/"|clean_after_last_underscore }}</strong><br>
                 <small class="text-muted">{{ forecast.created_at|date:"Y-m-d H:i" }}</small>
               </div>
 
@@ -86,13 +87,30 @@
 
               <!-- Ukryty div ze szczegółami -->
               <div id="details-{{ forecast.id }}" class="forecast-details mt-3" style="display: none;">
-                <ul class="list-group">
-                  {% for time, temp in forecast.pairs %}
-                  <li class="list-group-item p-1 small">
-                    {{ time }} — {{ temp }}°C
-                  </li>
-                  {% endfor %}
-                </ul>
+                <div class="forecast-slider" id="slider-{{ forecast.id }}">
+  {% for time, temp, hum in forecast.pairs %}
+  <div class="forecast-slide" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+    <div class="text-center">
+      {% if temp < 0 %}
+        <i class="bi bi-snow" style="font-size: 48px; color: deepskyblue;"></i>
+      {% elif temp <= 10 %}
+        <i class="bi bi-cloud" style="font-size: 48px; color: gray;"></i>
+      {% else %}
+        <i class="bi bi-sun" style="font-size: 48px; color: gold;"></i>
+      {% endif %}
+      <h2 class="mt-2">{{ temp|floatformat:1 }}°C</h2>
+      <p>Wilgotność: {{ hum|floatformat:1 }}%</p>
+      <p class="text-muted">{{ time }}</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="d-flex justify-content-between mt-2">
+  <button class="btn btn-sm btn-outline-primary prev-slide" data-forecast-id="{{ forecast.id }}" disabled>&lt;</button>
+  <button class="btn btn-sm btn-outline-primary next-slide" data-forecast-id="{{ forecast.id }}">&gt;</button>
+</div>
+
               </div>
 
             </div>

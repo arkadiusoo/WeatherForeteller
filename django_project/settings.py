@@ -135,7 +135,7 @@ LOCALE_PATHS = [
     BASE_DIR / "locale",  # lub os.path.join(BASE_DIR, "locale")
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
-TIME_ZONE = "UTC"
+TIME_ZONE = 'Europe/Warsaw'
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-USE_I18N
 USE_I18N = True

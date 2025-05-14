@@ -1,10 +1,6 @@
-// static/js/scripts.js
-console.log('Scripts.js działa!');
-
 document.addEventListener('DOMContentLoaded', function () {
     console.log('DOM wczytany');
 
-    // Obsługa kliknięcia "Generuj" dla pliku CSV
     const csvButtons = document.querySelectorAll('.generate-forecast-csv-btn');
     csvButtons.forEach(button => {
         button.addEventListener('click', function () {
@@ -62,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify({ city_name: cityName })
+                body: JSON.stringify({ city: cityName })
             })
             .then(response => {
                 if (!response.ok) {
@@ -115,6 +111,40 @@ document.addEventListener('DOMContentLoaded', function() {
       } else {
         detailsDiv.style.display = 'none';
         button.textContent = 'Details';
+      }
+    });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const sliders = document.querySelectorAll('.forecast-slider');
+
+  sliders.forEach(slider => {
+    const forecastId = slider.id.split('-')[1];
+    const slides = slider.querySelectorAll('.forecast-slide');
+    const prevButton = document.querySelector(`.prev-slide[data-forecast-id="${forecastId}"]`);
+    const nextButton = document.querySelector(`.next-slide[data-forecast-id="${forecastId}"]`);
+    let currentIndex = 0;
+
+    function updateSlides() {
+      slides.forEach((slide, index) => {
+        slide.style.display = (index === currentIndex) ? 'block' : 'none';
+      });
+      prevButton.disabled = (currentIndex === 0);
+      nextButton.disabled = (currentIndex === slides.length - 1);
+    }
+
+    prevButton.addEventListener('click', () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        updateSlides();
+      }
+    });
+
+    nextButton.addEventListener('click', () => {
+      if (currentIndex < slides.length - 1) {
+        currentIndex++;
+        updateSlides();
       }
     });
   });
