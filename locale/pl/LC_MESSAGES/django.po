@@ -120,3 +120,6 @@ msgstr "Strona startowa"
 
 msgid "Logout"
 msgstr "Wyloguj się"
+
+msgid "Select CSV file"
+msgstr "Wybierz plik CSV"
