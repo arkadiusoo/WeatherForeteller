@@ -44,16 +44,16 @@ msgstr ""
 
 #: templates/account/login.html:5 templates/account/login.html:10
 #: templates/account/login.html:39
-msgid "Zaloguj się"
-msgstr "Log in"
+msgid "Log in"
+msgstr "Zaloguj się"
 
 #: templates/account/login.html:45
-msgid "Nie pamiętasz hasła?"
-msgstr "Forgot your password?"
+msgid "Forgot your password?"
+msgstr "Nie pamiętasz hasła?"
 
 #: templates/account/login.html:48
-msgid "Nie masz konta? Zarejestruj się"
-msgstr "Don't have an account? Sign up"
+msgid "Don't have an account? Sign up"
+msgstr "Nie masz konta? Zarejestruj się"
 
 #: templates/account/password_reset.html:5
 #: templates/account/password_reset.html:10
@@ -64,35 +64,8 @@ msgstr "Ustaw nowe hasło"
 msgid "Change password"
 msgstr "Zmień hasło"
 
-#~ msgid "Sign In"
-#~ msgstr "Zaloguj się"
+msgid "Sign up"
+msgstr "Zarejestruj się"
 
-#~ msgid "Log in"
-#~ msgstr "Zaloguj się"
-
-#~ msgid "Don't have an account? Sign up"
-#~ msgstr "Nie masz konta? Zarejestruj się"
-
-#~ msgid "Forgot your password?"
-#~ msgstr "Nie pamiętasz hasła?"
-
-#~ msgid "Username"
-#~ msgstr "Nazwa użytkownika"
-
-#~ msgid "Password"
-#~ msgstr "Hasło"
-
-#~ msgid "Email"
-#~ msgstr "Adres e-mail"
-
-msgid "Zarejestruj się"
-msgstr "Sign up"
-
-#~ msgid "Log out"
-#~ msgstr "Wyloguj się"
-
-#~ msgid "This field is required."
-#~ msgstr "To pole jest wymagane."
-
-#~ msgid "Enter a valid email address."
-#~ msgstr "Wprowadź poprawny adres e-mail."
+msgid "Already have an account?"
+msgstr "Masz już konto?"
