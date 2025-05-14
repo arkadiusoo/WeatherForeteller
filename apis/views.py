@@ -1,5 +1,6 @@
 import csv
 import os
+from datetime import datetime
 
 from django.http import HttpResponse
 from rest_framework.views import APIView
@@ -76,7 +77,7 @@ class PredictFromCSVView(APIView):
 
         obj = TemperatureForecast.objects.create(
             source_type='csv',
-            source_name=f'CSV #{csv_file.id}',
+            source_name=f'{csv_file.file.name} Forecast',
             time_list=time_list,
             temperature_list=temp_list,
             humidity_list=hum_list
@@ -110,7 +111,7 @@ class PredictFromCityView(APIView):
 
         obj = TemperatureForecast.objects.create(
             source_type='city',
-            source_name=city,
+            source_name=f'{city} Forecast',
             time_list=time_list,
             temperature_list=temp_list,
             humidity_list=hum_list
@@ -120,7 +121,8 @@ class PredictFromCityView(APIView):
             'id': obj.id,
             'source': f'City: {city}',
             'time': time_list,
-            'temperature': temp_list
+            'temperature': temp_list,
+            'humidity': hum_list
         }, status=201)
 
 
@@ -140,7 +142,8 @@ class ForecastListView(APIView):
                 'name': f.source_name,
                 'created_at': f.created_at,
                 'time': f.time_list,
-                'temperature': f.temperature_list
+                'temperature': f.temperature_list,
+                'humidity': f.humidity_list
             } for f in forecasts
         ]
         return Response(data, status=status.HTTP_200_OK)
@@ -167,7 +170,8 @@ class ForecastDetailView(APIView):
             'name': forecast.source_name,
             'created_at': forecast.created_at,
             'time': forecast.time_list,
-            'temperature': forecast.temperature_list
+            'temperature': forecast.temperature_list,
+            'humidity': forecast.humidity_list
         }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -189,12 +193,13 @@ class ForecastDownloadCSVView(APIView):
             return Response({'error': 'Forecast not found'}, status=status.HTTP_404_NOT_FOUND)
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename=forecast_{id}.csv'
+        timestamp = datetime.now().strftime("%d_%m_%Y_%H:%M")
+        response['Content-Disposition'] = f'attachment; filename=forecast_{timestamp}.csv'
 
         writer = csv.writer(response)
-        writer.writerow(['Time', 'Temperature'])
+        writer.writerow(['Time', 'Temperature', 'Humidity'])
 
-        for t, temp in zip(forecast.time_list, forecast.temperature_list):
-            writer.writerow([t, temp])
+        for t, temp, hum in zip(forecast.time_list, forecast.temperature_list, forecast.humidity_list):
+            writer.writerow([t, temp, hum])
 
         return response

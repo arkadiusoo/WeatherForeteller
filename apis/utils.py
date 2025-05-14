@@ -77,10 +77,9 @@ def getCityData(city: str):
     hours_yesterday = data_yesterday['forecast']['forecastday'][0]['hour']
     hours_today = data_today['forecast']['forecastday'][0]['hour']
 
-    current_hour = now.hour + 2
     hours_today_filtered = [
         h for h in hours_today
-        if int(h['time'][-5:-3]) <= current_hour
+        if int(h['time'][-5:-3]) <= now.hour
     ]
 
     combined_hours = hours_yesterday_2 +hours_yesterday + hours_today_filtered
