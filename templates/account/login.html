@@ -1,6 +1,7 @@
 {% extends "_base.html" %}
 {% load i18n %}
 {% load crispy_forms_tags %}
+{% load socialaccount %}
 
 {% block title %}{% trans "Log in" %}{% endblock %}
 
@@ -9,6 +10,30 @@
   <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%; border-radius: 1rem;">
     <h3 class="text-center mb-4">{% trans "Log in" %}</h3>
 
+    <!-- Display only authentication errors (wrong credentials) -->
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {% for error in form.non_field_errors %}
+          {{ error }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- Only show form errors for wrong credentials -->
+
+    <!-- Google Login Button -->
+    <div class="d-grid mb-3">
+      <a href="{% provider_login_url 'google' %}" class="btn btn-outline-danger">
+        <i class="fab fa-google me-2"></i>{% trans "Continue with Google" %}
+      </a>
+    </div>
+
+    <div class="text-center mb-3">
+      <span class="text-muted">{% trans "or" %}</span>
+    </div>
+
+    <!-- Regular Email/Password Login -->
     <form method="POST" action="{% url 'account_login' %}">
       {% csrf_token %}
 
