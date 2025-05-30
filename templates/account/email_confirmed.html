@@ -1,0 +1,31 @@
+{% extends "_base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Email Confirmed" %}{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div class="card shadow-sm p-4" style="max-width: 500px; width: 100%; border-radius: 1rem;">
+    <div class="text-center mb-4">
+      <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+      <h3 class="mt-3 text-success">{% trans "Email Confirmed!" %}</h3>
+    </div>
+
+    <div class="alert alert-success" role="alert">
+      <h5 class="alert-heading">{% trans "Welcome!" %}</h5>
+      <p class="mb-2">{% trans "Your email address has been successfully confirmed. You are now logged in and can use all features of Weather Foreteller." %}</p>
+      <hr>
+      <p class="mb-0">{% trans "Thank you for joining us!" %}</p>
+    </div>
+
+    <div class="d-grid gap-2">
+      <a href="{% url 'home' %}" class="btn btn-success">
+        <i class="bi bi-house-fill me-2"></i>{% trans "Go to Homepage" %}
+      </a>
+      <a href="{% url 'account_login' %}" class="btn btn-outline-secondary">
+        {% trans "Login Page" %}
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

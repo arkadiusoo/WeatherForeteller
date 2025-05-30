@@ -29,7 +29,7 @@ class UploadCSVView(APIView):
         if not file or not file.name.endswith('.csv'):
             return Response({'error': 'Only CSV files are supported.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        UploadedCSV.objects.create(file=file)
+        UploadedCSV.objects.create(file=file, user=request.user)
         return Response({'message': f'File {file.name} uploaded successfully.'}, status=status.HTTP_200_OK)
 
 
@@ -42,7 +42,7 @@ class ListUploadedCSVView(APIView):
         description="Get a list of CSV files uploaded by the authenticated user."
     )
     def get(self, request, format=None):
-        uploaded_files = UploadedCSV.objects.filter().order_by('-uploaded_at')
+        uploaded_files = UploadedCSV.objects.filter(user=request.user).order_by('-uploaded_at')
         data = [
             {
                 'id': f.id,
@@ -67,7 +67,7 @@ class PredictFromCSVView(APIView):
     def post(self, request):
         csv_id = request.data.get('csv_id')
         try:
-            csv_file = UploadedCSV.objects.get(id=csv_id)
+            csv_file = UploadedCSV.objects.get(id=csv_id, user=request.user)
         except UploadedCSV.DoesNotExist:
             return Response({'error': 'CSV not found or not yours'}, status=404)
 
@@ -76,6 +76,7 @@ class PredictFromCSVView(APIView):
         time_list, temp_list, hum_list = predict_from_csv(path)
 
         obj = TemperatureForecast.objects.create(
+            user=request.user,
             source_type='csv',
             source_name=f'{csv_file.file.name} Forecast',
             time_list=time_list,
@@ -110,6 +111,7 @@ class PredictFromCityView(APIView):
         time_list, temp_list, hum_list = getCityData(city)
 
         obj = TemperatureForecast.objects.create(
+            user=request.user,
             source_type='city',
             source_name=f'{city} Forecast',
             time_list=time_list,
@@ -135,7 +137,7 @@ class ForecastListView(APIView):
         description="Retrieve a list of all generated temperature forecasts."
     )
     def get(self, request):
-        forecasts = TemperatureForecast.objects.all().order_by('-created_at')
+        forecasts = TemperatureForecast.objects.filter(user=request.user).order_by('-created_at')
         data = [
             {
                 'id': f.id,
@@ -161,7 +163,7 @@ class ForecastDetailView(APIView):
     )
     def get(self, request, id):
         try:
-            forecast = TemperatureForecast.objects.get(id=id)
+            forecast = TemperatureForecast.objects.get(id=id, user=request.user)
         except TemperatureForecast.DoesNotExist:
             return Response({'error': 'Forecast not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -188,7 +190,7 @@ class ForecastDownloadCSVView(APIView):
     )
     def get(self, request, id):
         try:
-            forecast = TemperatureForecast.objects.get(id=id)
+            forecast = TemperatureForecast.objects.get(id=id, user=request.user)
         except TemperatureForecast.DoesNotExist:
             return Response({'error': 'Forecast not found'}, status=status.HTTP_404_NOT_FOUND)
 

@@ -1,0 +1,31 @@
+{% extends "_base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Sign In with Google" %}{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh;">
+  <div class="card shadow-sm p-4" style="max-width: 400px; width: 100%; border-radius: 1rem;">
+    <div class="text-center mb-4">
+      <i class="fab fa-google text-danger" style="font-size: 3rem;"></i>
+      <h3 class="mt-3">{% trans "Sign In with Google" %}</h3>
+    </div>
+
+    <div class="alert alert-info" role="alert">
+      <small>{% trans "You will be redirected to Google to complete the sign-in process." %}</small>
+    </div>
+
+    <form method="post" action="">
+      {% csrf_token %}
+      <div class="d-grid gap-2">
+        <button type="submit" class="btn btn-danger">
+          <i class="fab fa-google me-2"></i>{% trans "Continue to Google" %}
+        </button>
+        <a href="{% url 'account_login' %}" class="btn btn-outline-secondary">
+          {% trans "Back to Login" %}
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
