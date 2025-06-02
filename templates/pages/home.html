@@ -1,13 +1,135 @@
 {% extends '_base.html' %}
 {% load static %}
+{% load custom_filters %}
+{% load i18n %}
 
-{% block title %}Home page{% endblock title %}
+{% block title %}{% trans "Home page" %}{% endblock title %}
 
 {% block content %}
-<h1>Home page</h1>
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+<div class="container-fluid py-5">
 
-{#  <img src="{% static 'images/lithium.png' %}" class="img-fluid" alt="Lithium logo"/>#}
-{#  <p class="lead">A Django starter project with batteries.</p>#}
+  <h1 class="text-center mb-5">Dahsboard</h1>
+
+  <div class="row justify-content-center px-5 gx-5">
+
+    <!-- Twoje pliki CSV -->
+    <div class="col-lg-3">
+      <h4 class="mb-3 text-center">{% trans "Your files" %}</h4>
+      <div class="bg-white p-4 rounded shadow-sm" style="max-height: 400px; overflow-y: auto;">
+        {% if user_csvs %}
+        <ul class="list-group list-group-flush">
+          {% for csv in user_csvs %}
+          <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                {{ csv.file.name|cut:"csv_files/"|clean_after_last_underscore }}<br>
+                <small class="text-muted">{{ csv.uploaded_at|date:"Y-m-d H:i" }}</small>
+              </div>
+              <!-- Przycisk do generowania prognozy CSV -->
+              <button type="button" class="btn btn-sm btn-success generate-forecast-csv-btn" data-csv-id="{{ csv.id }}">
+                {% trans "Generate" %}
+              </button>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center">{% trans "You haven't uploaded any files yet." %}</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Przesyłanie pliku + Generowanie po mieście -->
+    <div class="col-lg-4">
+      <h4 class="mb-3 text-center">{% trans "Upload a CSV file" %}</h4>
+      <div class="bg-white p-4 rounded shadow-sm mb-4">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+<div class="mb-3">
+  <label for="{{ form.file.id_for_label }}" class="form-label">
+    {{ form.file.label }}
+  </label>
+  {{ form.file }}
 </div>
+          <div class="d-grid mt-3">
+            <button class="btn btn-primary" type="submit">{% trans "Upload" %}</button>
+          </div>
+        </form>
+      </div>
+
+      <h4 class="mb-3 text-center">{% trans "Generate forecast by city" %}</h4>
+      <div class="bg-white p-4 rounded shadow-sm">
+        <div class="d-flex">
+          <input type="text" id="city-name-input" class="form-control me-2" placeholder="{% trans 'Enter city name' %}">
+          <button type="button" id="generate-city-btn" class="btn btn-sm btn-success">
+            {% trans "Generate" %}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Twoje prognozy -->
+    <div class="col-lg-3">
+      <h4 class="mb-3 text-center">{% trans "Your forecasts" %}</h4>
+      <div class="bg-white p-4 rounded shadow-sm" style="max-height: 400px; overflow-y: auto;">
+        {% if user_forecasts %}
+        <ul class="list-group list-group-flush">
+          {% for forecast in user_forecasts %}
+          <li class="list-group-item">
+            <div class="d-flex flex-column">
+              <div class="mb-2">
+                <strong>{{ forecast.source_name|cut:"csv_files/"|clean_after_last_underscore }}</strong><br>
+                <small class="text-muted">{{ forecast.created_at|date:"Y-m-d H:i" }}</small>
+              </div>
+
+              <div class="d-flex justify-content-between">
+                <button type="button" class="btn btn-sm btn-primary toggle-details-btn" data-forecast-id="{{ forecast.id }}">
+                  {% trans "Details" %}
+                </button>
+                <a href="/api/forecasts/{{ forecast.id }}/download/" class="btn btn-sm btn-outline-success">
+                  {% trans "Download" %}
+                </a>
+              </div>
+
+              <!-- Ukryty div ze szczegółami -->
+              <div id="details-{{ forecast.id }}" class="forecast-details mt-3" style="display: none;">
+                <div class="forecast-slider" id="slider-{{ forecast.id }}">
+                  {% for time, temp, hum in forecast.pairs %}
+                  <div class="forecast-slide" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+                    <div class="text-center">
+                      {% if temp < 0 %}
+                        <i class="bi bi-snow" style="font-size: 48px; color: deepskyblue;"></i>
+                      {% elif temp <= 10 %}
+                        <i class="bi bi-cloud" style="font-size: 48px; color: gray;"></i>
+                      {% else %}
+                        <i class="bi bi-sun" style="font-size: 48px; color: gold;"></i>
+                      {% endif %}
+                      <h2 class="mt-2">{{ temp|floatformat:1 }}°C</h2>
+                      <p>{% trans "Humidity" %}: {{ hum|floatformat:1 }}%</p>
+                      <p class="text-muted">{{ time }}</p>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+
+                <div class="d-flex justify-content-between mt-2">
+                  <button class="btn btn-sm btn-outline-primary prev-slide" data-forecast-id="{{ forecast.id }}" disabled>&lt; {% trans "Previous" %}</button>
+                  <button class="btn btn-sm btn-outline-primary next-slide" data-forecast-id="{{ forecast.id }}">{% trans "Next" %} &gt;</button>
+                </div>
+
+              </div>
+
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-muted text-center">{% trans "You don't have any forecasts yet." %}</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
 {% endblock content %}
