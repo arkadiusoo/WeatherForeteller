@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Kliknięto Generuj CSV dla id:', csvId);
 
             this.disabled = true;
-            this.textContent = 'Generowanie...';
+            // this.textContent = 'Generowanie...';
 
             fetch('/api/predict/csv/', {
                 method: 'POST',
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             cityButton.disabled = true;
-            cityButton.textContent = 'Generowanie...';
+            // cityButton.textContent = 'Generowanie...';
 
             fetch('/api/predict/city/', {
                 method: 'POST',
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (detailsDiv.style.display === 'none') {
         detailsDiv.style.display = 'block';
-        button.textContent = 'Hide';
+        // button.textContent = 'Hide';
       } else {
         detailsDiv.style.display = 'none';
         button.textContent = 'Details';

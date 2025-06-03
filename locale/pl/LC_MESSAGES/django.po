@@ -123,3 +123,6 @@ msgstr "Wyloguj się"
 
 msgid "Select CSV file"
 msgstr "Wybierz plik CSV"
+
+msgid "Temperature Chart"
+msgstr "Wykres Temperatur"

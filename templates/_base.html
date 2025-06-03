@@ -21,10 +21,11 @@
 
 <body>
   <!-- Navbar -->
+
   <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
     <div class="container">
       <a class="navbar-brand fw-bold" href="{% url 'home' %}">Weather Foreteller</a>
-
+        <a class="nav-link" href="{% url 'home' %}" >{% trans "Dashboard" %}</a>
       <div class="collapse navbar-collapse justify-content-end align-items-center">
   {% if user.is_authenticated %}
     <form method="post" action="{% url 'account_logout' %}" class="d-flex me-2">
