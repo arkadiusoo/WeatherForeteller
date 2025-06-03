@@ -95,7 +95,7 @@
               <!-- Ukryty div ze szczegółami -->
               <div id="details-{{ forecast.id }}" class="forecast-details mt-3" style="display: none;">
                   <!-- TUTAJ -->
-                  <a href="/api/forecasts/{{ forecast.id }}/chart" class="btn btn-sm btn-outline-success">chart </a>
+                  <a href="/api/forecasts/{{ forecast.id }}/chart" class="btn btn-sm btn-outline-success">{% trans "Temperature Chart" %} </a>
                   
                 <div class="forecast-slider" id="slider-{{ forecast.id }}">
                   {% for time, temp, hum in forecast.pairs %}
