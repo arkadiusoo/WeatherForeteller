@@ -11,15 +11,20 @@ load_dotenv()
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#secret-key
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-0peo@#x9jur3!h$ryje!$879xww8y1y66jx!%*#ymhg&jkozs2"
-
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is required. Generate one with Django's get_random_secret_key()")
 # https://docs.djangoproject.com/en/dev/ref/settings/#debug
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# SECURITY WARNING:
+DEBUG = os.getenv('DEBUG', 'False').lower() in ('true', '1', 'yes')
+
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
+# Ensure we have allowed hosts in production
+if not DEBUG and not ALLOWED_HOSTS:
+    raise ValueError("ALLOWED_HOSTS must be set when DEBUG=False. Example: 'yourdomain.com,www.yourdomain.com'")
 
 # Application definition
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -39,7 +44,6 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
     "crispy_forms",
     "crispy_bootstrap5",
-    "debug_toolbar",
     # Local
     "accounts",
     "pages",
@@ -48,6 +52,8 @@ INSTALLED_APPS = [
     # "apis",
     'drf_spectacular',
 ]
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 MIDDLEWARE = [
@@ -55,7 +61,6 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",  # WhiteNoise
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",  # Django Debug Toolbar
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -64,6 +69,8 @@ MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware', #obsługa języków
 ]
 
+if DEBUG:
+    MIDDLEWARE.insert(3, "debug_toolbar.middleware.DebugToolbarMiddleware")
 # https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
 ROOT_URLCONF = "django_project.urls"
 
@@ -147,8 +154,6 @@ USE_I18N = True
 # https://docs.djangoproject.com/en/dev/ref/settings/#use-tz
 USE_TZ = True
 
-# https://docs.djangoproject.com/en/dev/ref/settings/#locale-paths
-LOCALE_PATHS = [BASE_DIR / "locale"]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
@@ -199,7 +204,8 @@ DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
 # django-debug-toolbar
 # https://django-debug-toolbar.readthedocs.io/en/latest/installation.html
 # https://docs.djangoproject.com/en/dev/ref/settings/#internal-ips
-INTERNAL_IPS = ["127.0.0.1"]
+if DEBUG:
+    INTERNAL_IPS = ["127.0.0.1"]
 
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#substituting-a-custom-user-model
 AUTH_USER_MODEL = "accounts.CustomUser"
@@ -232,10 +238,8 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True  # Auto-login after email confirmatio
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3  # Confirmation link expires in 3 days
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#csrf-trusted-origins
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:8000",  # Default Django dev server
-    "http://127.0.0.1:8000",  # Alternative local address
-]
+
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',') if os.getenv('CSRF_TRUSTED_ORIGINS') else []
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
@@ -256,6 +260,10 @@ SPECTACULAR_SETTINGS = {
 # Google OAuth configuration
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
+        'APP': {
+            'client_id': os.getenv('GOOGLE_OAUTH_CLIENT_ID'),
+            'secret': os.getenv('GOOGLE_OAUTH_SECRET'),
+        },
         'SCOPE': [
             'profile',
             'email',
@@ -266,5 +274,11 @@ SOCIALACCOUNT_PROVIDERS = {
         'OAUTH_PKCE_ENABLED': True,
     }
 }
+
+
+# Validate email configuration
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    if not DEBUG:
+        raise ValueError("Email configuration (EMAIL_HOST_USER, EMAIL_HOST_PASSWORD) is required for production")
 
 
