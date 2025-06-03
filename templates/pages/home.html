@@ -75,6 +75,7 @@
         {% if user_forecasts %}
         <ul class="list-group list-group-flush">
           {% for forecast in user_forecasts %}
+
           <li class="list-group-item">
             <div class="d-flex flex-column">
               <div class="mb-2">
@@ -93,6 +94,9 @@
 
               <!-- Ukryty div ze szczegółami -->
               <div id="details-{{ forecast.id }}" class="forecast-details mt-3" style="display: none;">
+                  <!-- TUTAJ -->
+                  <a href="/api/forecasts/{{ forecast.id }}/chart" class="btn btn-sm btn-outline-success">chart </a>
+                  
                 <div class="forecast-slider" id="slider-{{ forecast.id }}">
                   {% for time, temp, hum in forecast.pairs %}
                   <div class="forecast-slide" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
@@ -131,5 +135,4 @@
 
   </div>
 </div>
-
 {% endblock content %}
