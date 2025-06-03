@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       if (detailsDiv.style.display === 'none') {
         detailsDiv.style.display = 'block';
-        button.textContent = 'Hide';
+        // button.textContent = 'Hide';
       } else {
         detailsDiv.style.display = 'none';
         button.textContent = 'Details';
