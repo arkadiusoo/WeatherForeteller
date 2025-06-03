@@ -1,5 +1,10 @@
 <!-- index.html -->
+{% extends '_base.html' %}
 {% load static %}
+{% load custom_filters %}
+{% load i18n %}
+{% block title %}chart{% endblock title %}
+{% block content %}
 <html>
 <head>
 <script>
@@ -10,7 +15,7 @@ window.onload = function () {
       text: "Temperature forecast over time"
     },
     axisY: {
-      title: "Number of Steps",
+      title: "temperature",
       stripLines: [{
         value: 10000,
         label: "Goal"
@@ -18,7 +23,7 @@ window.onload = function () {
     },
     data: [{
       type: "line",
-      yValueFormatString: "#,### Steps",
+      yValueFormatString: "#,### Celsius",
       dataPoints: {{ stepcount|safe }}
     }]
   });
@@ -27,7 +32,8 @@ window.onload = function () {
 </script>
 </head>
 <body>
-    <div id="chartContainer" style="width: 100%; height: 360px;"></div>
+    <div id="chartContainer" style="width: 80%; height: 400px; margin: auto"></div>
     <script src="{% static 'canvasjs.min.js' %}"></script>
 </body>
 </html>
+{% endblock content %}
