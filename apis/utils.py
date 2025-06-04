@@ -2,6 +2,7 @@ import os
 import pickle
 from datetime import datetime, timedelta
 
+import joblib
 import pandas as pd
 import numpy as np
 import torch
@@ -40,9 +41,9 @@ def predict_from_csv(path: str):
     df = pd.read_csv(path, delimiter=',')
     df['Date Time'] = pd.to_datetime(df['Date Time'], format='%d.%m.%Y %H:%M:%S')
     df.set_index('Date Time', inplace=True)
-
+    rain_list = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     time_list, temp_list, hum_list = predictor(df)
-    return time_list, temp_list, hum_list
+    return time_list, temp_list, hum_list, rain_list
 
 def getCityData(city: str):
     api_key = "d0c5fc84e556463389a220217251205"
@@ -50,14 +51,17 @@ def getCityData(city: str):
     today = now.date()
     yesterday = (now - timedelta(days=1)).date()
     yesterday_2 = (now - timedelta(days=2)).date()
+    tomorrow = (now + timedelta(days=1)).date()
 
     url_yesterday_2 = f"http://api.weatherapi.com/v1/history.json?key={api_key}&q={city}&dt={yesterday_2}"
     url_yesterday = f"http://api.weatherapi.com/v1/history.json?key={api_key}&q={city}&dt={yesterday}"
     url_today = f"http://api.weatherapi.com/v1/history.json?key={api_key}&q={city}&dt={today}"
+    url_tomorrow = f"http://api.weatherapi.com/v1/history.json?key={api_key}&q={city}&dt={tomorrow}"
 
     response_yesterday_2 = requests.get(url_yesterday_2)
     response_yesterday = requests.get(url_yesterday)
     response_today = requests.get(url_today)
+    response_tomorrow = requests.get(url_tomorrow)
 
     if response_yesterday.status_code != 200:
         raise Exception(
@@ -72,19 +76,29 @@ def getCityData(city: str):
     data_yesterday_2 = response_yesterday_2.json()
     data_yesterday = response_yesterday.json()
     data_today = response_today.json()
+    data_tomorrow = response_tomorrow.json()
 
     hours_yesterday_2 = data_yesterday_2['forecast']['forecastday'][0]['hour']
     hours_yesterday = data_yesterday['forecast']['forecastday'][0]['hour']
     hours_today = data_today['forecast']['forecastday'][0]['hour']
+    hours_tommorrow = data_tomorrow['forecast']['forecastday'][0]['hour']
 
     hours_today_filtered = [
         h for h in hours_today
         if int(h['time'][-5:-3]) <= now.hour
     ]
 
-    combined_hours = hours_yesterday_2 +hours_yesterday + hours_today_filtered
+    hours_today_filtered_next = [
+        h for h in hours_today
+        if int(h['time'][-5:-3]) >= now.hour
+    ]
 
+    combined_hours = hours_yesterday_2 + hours_yesterday + hours_today_filtered
+    combined_hours_future = hours_today_filtered_next + hours_tommorrow
+    print(combined_hours)
+    print(combined_hours_future)
     last_48_hours = combined_hours[-48:]
+    next_24h = combined_hours_future[:24]
     time = []
     temp = []
     humidity = []
@@ -94,14 +108,35 @@ def getCityData(city: str):
         temp.append(i['temp_c'])
         humidity.append(i['humidity'])
 
+    time1 = []
+    temp1 = []
+    humidity1 = []
+    wind_speed = []
+    precipitation = []
+    cloud_cover = []
+    pressure = []
+    for i in next_24h:
+        time1.append(i['time'])
+        temp1.append(i['temp_c'])
+        humidity1.append(i['humidity'])
+        wind_speed.append(i['wind_kph'])
+        precipitation.append(i['precip_mm'])
+        cloud_cover.append(i['cloud'])
+        pressure.append(i['pressure_mb'])
+
     df = pd.DataFrame({'Date Time': time, 'T (degC)': temp, 'humidity': humidity})
+    df1 = pd.DataFrame(
+        {'time': time1, 'temp': temp1, 'humidity': humidity1, 'wind_speed': wind_speed, 'precipitation': precipitation,
+         'cloud_cover': cloud_cover, 'pressure': pressure})
     df['Date Time'] = pd.to_datetime(df['Date Time'], format='%Y-%m-%d %H:%M')
     df.set_index('Date Time', inplace=True)
 
     time_list, temp_list, hum_list = predictor(df)
-    return time_list, temp_list, hum_list
+    rain_list = predictor_rain_city(df1)
+    return time_list, temp_list, hum_list, rain_list
 
 def predictor(ts):
+    print(ts)
     models_dir   = os.path.join(settings.BASE_DIR, 'prediction-models/saved-models')
     # Paths for temperature
     scaler_temp_path = os.path.join(models_dir, 'scaler_temp.pkl')
@@ -168,5 +203,28 @@ def predictor(ts):
         (last_time + pd.Timedelta(hours=i + 1)).strftime('%H.%M')
         for i in range(PREDICT_HORIZON)
     ]
-
     return time_list, preds_temp, preds_hum
+
+def predictor_rain_city(df):
+    models_dir   = os.path.join(settings.BASE_DIR, 'prediction-models/saved-models')
+    rain_temp_model = os.path.join(models_dir, 'rain_model_joblib.pkl')
+    loaded_model = joblib.load(rain_temp_model)
+    rain_list = []
+    for index, row in df.iterrows():
+        features = {
+            'Temperature': row['temp'],
+            'Humidity': row['humidity'],
+            'Wind Speed': row['wind_speed'],
+            'Precipitation': row['precipitation'],
+            'Cloud Cover': row['cloud_cover'],
+            'Pressure': row['pressure']
+        }
+        input_df = pd.DataFrame([features])
+        predictions = loaded_model.predict(input_df)
+
+        pred_labels = ['Yes' if p == 1 else 'No' for p in predictions]
+        if pred_labels == ['Yes']:
+            rain_list.append(1)
+        else:
+            rain_list.append(0)
+    return rain_list

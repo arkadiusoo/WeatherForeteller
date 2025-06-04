@@ -14,7 +14,7 @@ class HomePageView(LoginRequiredMixin, View):
         user_csvs = UploadedCSV.objects.filter(user=request.user).order_by('-uploaded_at')
         user_forecasts = TemperatureForecast.objects.filter(user=request.user).order_by('-created_at')
         for forecast in user_forecasts:
-            forecast.pairs = list(zip(forecast.time_list, forecast.temperature_list, forecast.humidity_list))
+            forecast.pairs = list(zip(forecast.time_list, forecast.temperature_list, forecast.humidity_list, forecast.rain_list))
         return render(request, self.template_name, {'form': form, 'user_csvs': user_csvs, 'user_forecasts' : user_forecasts})
 
     def post(self, request):
