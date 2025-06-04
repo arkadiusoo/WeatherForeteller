@@ -202,7 +202,10 @@ class ForecastDownloadCSVView(APIView):
 
         response = HttpResponse(content_type='text/csv')
         timestamp = datetime.now().strftime("%d_%m_%Y_%H:%M")
-        response['Content-Disposition'] = f'attachment; filename=forecast_{timestamp}.csv'
+        if forecast.source_type == 'city':
+            response['Content-Disposition'] = f'attachment; filename={forecast.source_name}.csv'
+        else:
+            response['Content-Disposition'] = f'attachment; filename=forecast {timestamp}.csv'
 
         writer = csv.writer(response)
         writer.writerow(['Time', 'Temperature', 'Humidity', 'Rain'])
