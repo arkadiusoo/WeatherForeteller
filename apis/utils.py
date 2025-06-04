@@ -11,21 +11,23 @@ import requests
 
 from django.conf import settings
 
-WINDOW_SIZE     = 48
+WINDOW_SIZE = 48
 PREDICT_HORIZON = 24
-DEVICE          = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # ---------------------- MODEL DEFINITION ----------------------
 class LSTMForecast(nn.Module):
     def __init__(self, input_size=1, hidden_size=16, num_layers=1):
         super().__init__()
-        self.lstm   = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers,
+                            batch_first=True)
         self.linear = nn.Linear(hidden_size, 1)
 
     def forward(self, x):
-        output, _ = self.lstm(x)       # output shape: (batch, seq_len, hidden_size)
-        last_step = output[:, -1, :]   # take the last time step
+        output, _ = self.lstm(
+            x)  # output shape: (batch, seq_len, hidden_size)
+        last_step = output[:, -1, :]  # take the last time step
         return self.linear(last_step)  # shape: (batch, 1)
 
 
@@ -39,11 +41,13 @@ def predict_from_csv(path: str):
     """
     # Data loading and preparation
     df = pd.read_csv(path, delimiter=',')
-    df['Date Time'] = pd.to_datetime(df['Date Time'], format='%d.%m.%Y %H:%M:%S')
+    df['Date Time'] = pd.to_datetime(df['Date Time'],
+                                     format='%d.%m.%Y %H:%M:%S')
     df.set_index('Date Time', inplace=True)
     rain_list = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     time_list, temp_list, hum_list = predictor(df)
     return time_list, temp_list, hum_list, rain_list
+
 
 def getCityData(city: str):
     api_key = "d0c5fc84e556463389a220217251205"
@@ -67,11 +71,11 @@ def getCityData(city: str):
         raise Exception(
             f"Error fetching yesterday's data: {response_yesterday.status_code} - {response_yesterday.text}")
     if response_today.status_code != 200:
-        raise Exception(f"Error fetching today's data: {response_today.status_code} - {response_today.text}")
+        raise Exception(
+            f"Error fetching today's data: {response_today.status_code} - {response_today.text}")
     if response_yesterday_2.status_code != 200:
         raise Exception(
             f"Error fetching yesterday's data: {response_yesterday_2.status_code} - {response_yesterday_2.text}")
-
 
     data_yesterday_2 = response_yesterday_2.json()
     data_yesterday = response_yesterday.json()
@@ -88,10 +92,12 @@ def getCityData(city: str):
         if int(h['time'][-5:-3]) <= now.hour
     ]
 
+
     hours_today_filtered_next = [
         h for h in hours_today
         if int(h['time'][-5:-3]) >= now.hour
     ]
+
 
     combined_hours = hours_yesterday_2 + hours_yesterday + hours_today_filtered
     combined_hours_future = hours_today_filtered_next + hours_tommorrow
@@ -107,6 +113,7 @@ def getCityData(city: str):
         time.append(i['time'])
         temp.append(i['temp_c'])
         humidity.append(i['humidity'])
+
 
     time1 = []
     temp1 = []
@@ -128,6 +135,7 @@ def getCityData(city: str):
     df1 = pd.DataFrame(
         {'time': time1, 'temp': temp1, 'humidity': humidity1, 'wind_speed': wind_speed, 'precipitation': precipitation,
          'cloud_cover': cloud_cover, 'pressure': pressure})
+
     df['Date Time'] = pd.to_datetime(df['Date Time'], format='%Y-%m-%d %H:%M')
     df.set_index('Date Time', inplace=True)
 
@@ -135,42 +143,49 @@ def getCityData(city: str):
     rain_list = predictor_rain_city(df1)
     return time_list, temp_list, hum_list, rain_list
 
+
 def predictor(ts):
+
     print(ts)
     models_dir   = os.path.join(settings.BASE_DIR, 'prediction-models/saved-models')
+
     # Paths for temperature
     scaler_temp_path = os.path.join(models_dir, 'scaler_temp.pkl')
-    model_temp_path  = os.path.join(models_dir, 'model_temp.pth')
+    model_temp_path = os.path.join(models_dir, 'model_temp.pth')
     # Paths for humidity
-    scaler_hum_path  = os.path.join(models_dir, 'scaler_humidity.pkl')
-    model_hum_path   = os.path.join(models_dir, 'model_humidity.pth')
+    scaler_hum_path = os.path.join(models_dir, 'scaler_humidity.pkl')
+    model_hum_path = os.path.join(models_dir, 'model_humidity.pth')
 
     # Load scalers
     with open(scaler_temp_path, 'rb') as f:
         scaler_temp = pickle.load(f)
     with open(scaler_hum_path, 'rb') as f:
-        scaler_hum  = pickle.load(f)
+        scaler_hum = pickle.load(f)
 
     # Load models
-    model_temp = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(DEVICE)
-    model_temp.load_state_dict(torch.load(model_temp_path, map_location=DEVICE))
+    model_temp = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(
+        DEVICE)
+    model_temp.load_state_dict(
+        torch.load(model_temp_path, map_location=DEVICE))
     model_temp.eval()
 
-    model_hum  = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(DEVICE)
+    model_hum = LSTMForecast(input_size=1, hidden_size=16, num_layers=1).to(
+        DEVICE)
     model_hum.load_state_dict(torch.load(model_hum_path, map_location=DEVICE))
     model_hum.eval()
 
     # Prepare and scale input sequences
     vals_temp = ts['T (degC)'].values.reshape(-1, 1)
-    vals_hum  = ts['humidity'].values.reshape(-1, 1)
+    print(ts)
+    vals_hum = ts['humidity'].values.reshape(-1, 1)
     scaled_temp = scaler_temp.transform(vals_temp).flatten().tolist()
-    scaled_hum  = scaler_hum.transform(vals_hum).flatten().tolist()
+    scaled_hum = scaler_hum.transform(vals_hum).flatten().tolist()
 
     # Rolling window predictions
     preds_temp_scaled = []
-    preds_hum_scaled  = []
+    preds_hum_scaled = []
     seq_temp = scaled_temp.copy()
-    seq_hum  = scaled_hum.copy()
+    seq_hum = scaled_hum.copy()
 
     for _ in range(PREDICT_HORIZON):
         # Temperature prediction
@@ -193,7 +208,7 @@ def predictor(ts):
     preds_temp = scaler_temp.inverse_transform(
         np.array(preds_temp_scaled).reshape(-1, 1)
     ).flatten().tolist()
-    preds_hum  = scaler_hum.inverse_transform(
+    preds_hum = scaler_hum.inverse_transform(
         np.array(preds_hum_scaled).reshape(-1, 1)
     ).flatten().tolist()
 
@@ -204,6 +219,7 @@ def predictor(ts):
         for i in range(PREDICT_HORIZON)
     ]
     return time_list, preds_temp, preds_hum
+
 
 def predictor_rain_city(df):
     models_dir   = os.path.join(settings.BASE_DIR, 'prediction-models/saved-models')
@@ -228,3 +244,4 @@ def predictor_rain_city(df):
         else:
             rain_list.append(0)
     return rain_list
+

@@ -1,0 +1,39 @@
+<!-- index.html -->
+{% extends '_base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load i18n %}
+{% block title %}chart{% endblock title %}
+{% block content %}
+<html>
+<head>
+<script>
+window.onload = function () {
+  var chart= new CanvasJS.Chart("chartContainer", {
+    theme: "light2",
+    title: {
+      text: "Temperature forecast over time"
+    },
+    axisY: {
+      title: "temperature",
+      stripLines: [{
+        value: 10000,
+        label: "Goal"
+      }]
+    },
+    data: [{
+      type: "line",
+      yValueFormatString: "#,### Celsius",
+      dataPoints: {{ stepcount|safe }}
+    }]
+  });
+  chart.render();
+}
+</script>
+</head>
+<body>
+    <div id="chartContainer" style="width: 80%; height: 400px; margin: auto"></div>
+    <script src="{% static 'canvasjs.min.js' %}"></script>
+</body>
+</html>
+{% endblock content %}
