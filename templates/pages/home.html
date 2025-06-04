@@ -8,7 +8,7 @@
 {% block content %}
 <div class="container-fluid py-5">
 
-  <h1 class="text-center mb-5">Dahsboard</h1>
+  <h1 class="text-center mb-5">Dashboard</h1>
 
   <div class="row justify-content-center px-5 gx-5">
 
@@ -98,21 +98,28 @@
                   <a href="/api/forecasts/{{ forecast.id }}/chart" class="btn btn-sm btn-outline-success">{% trans "Temperature Chart" %} </a>
                   
                 <div class="forecast-slider" id="slider-{{ forecast.id }}">
-                  {% for time, temp, hum in forecast.pairs %}
+                  {% for time, temp, hum, rain in forecast.pairs %}
                   <div class="forecast-slide" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
-                    <div class="text-center">
-                      {% if temp < 0 %}
-                        <i class="bi bi-snow" style="font-size: 48px; color: deepskyblue;"></i>
-                      {% elif temp <= 10 %}
-                        <i class="bi bi-cloud" style="font-size: 48px; color: gray;"></i>
-                      {% else %}
-                        <i class="bi bi-sun" style="font-size: 48px; color: gold;"></i>
-                      {% endif %}
-                      <h2 class="mt-2">{{ temp|floatformat:1 }}°C</h2>
-                      <p>{% trans "Humidity" %}: {{ hum|floatformat:1 }}%</p>
-                      <p class="text-muted">{{ time }}</p>
-                    </div>
-                  </div>
+  <div class="text-center">
+    <div class="d-flex justify-content-center align-items-center" style="gap: 10px;">
+      {% if temp < 0 %}
+        <i class="bi bi-snow" style="font-size: 48px; color: deepskyblue;"></i>
+      {% elif temp <= 10 %}
+        <i class="bi bi-cloud" style="font-size: 48px; color: gray;"></i>
+      {% else %}
+        <i class="bi bi-sun" style="font-size: 48px; color: gold;"></i>
+      {% endif %}
+
+      {% if rain == 1 %}
+        <i class="bi bi-cloud-rain" style="font-size: 48px; color: cornflowerblue;"></i>
+      {% endif %}
+    </div>
+
+    <h2 class="mt-2">{{ temp|floatformat:1 }}°C</h2>
+    <p>{% trans "Humidity" %}: {{ hum|floatformat:1 }}%</p>
+    <p class="text-muted">{{ time }}</p>
+  </div>
+</div>
                   {% endfor %}
                 </div>
 

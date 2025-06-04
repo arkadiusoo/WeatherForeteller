@@ -114,7 +114,7 @@ class PredictFromCSVView(APIView):
         path = os.path.join(csv_file.file.storage.location,
                             csv_file.file.name)
 
-        time_list, temp_list, hum_list = predict_from_csv(path)
+        time_list, temp_list, hum_list, rain_list = predict_from_csv(path)
 
         obj = TemperatureForecast.objects.create(
             user=request.user,
@@ -122,7 +122,8 @@ class PredictFromCSVView(APIView):
             source_name=f'{csv_file.file.name} Forecast',
             time_list=time_list,
             temperature_list=temp_list,
-            humidity_list=hum_list
+            humidity_list=hum_list,
+            rain_list=rain_list
         )
 
         return Response({
@@ -130,7 +131,8 @@ class PredictFromCSVView(APIView):
             'source': obj.source_name,
             'time': time_list,
             'temperature': temp_list,
-            'humidity': hum_list
+            'humidity': hum_list,
+            'rain': rain_list
         }, status=201)
 
 
@@ -152,7 +154,7 @@ class PredictFromCityView(APIView):
         if not city:
             return Response({'error': 'City is required'}, status=400)
 
-        time_list, temp_list, hum_list = getCityData(city)
+        time_list, temp_list, hum_list, rain_list = getCityData(city)
 
         obj = TemperatureForecast.objects.create(
             user=request.user,
@@ -160,7 +162,8 @@ class PredictFromCityView(APIView):
             source_name=f'{city} Forecast',
             time_list=time_list,
             temperature_list=temp_list,
-            humidity_list=hum_list
+            humidity_list=hum_list,
+            rain_list=rain_list
         )
 
         return Response({
@@ -168,7 +171,8 @@ class PredictFromCityView(APIView):
             'source': f'City: {city}',
             'time': time_list,
             'temperature': temp_list,
-            'humidity': hum_list
+            'humidity': hum_list,
+            'rain': rain_list
         }, status=201)
 
 
@@ -190,7 +194,8 @@ class ForecastListView(APIView):
                 'created_at': f.created_at,
                 'time': f.time_list,
                 'temperature': f.temperature_list,
-                'humidity': f.humidity_list
+                'humidity': f.humidity_list,
+                'rain': f.rain_list
             } for f in forecasts
         ]
         return Response(data, status=status.HTTP_200_OK)
@@ -221,7 +226,8 @@ class ForecastDetailView(APIView):
             'created_at': forecast.created_at,
             'time': forecast.time_list,
             'temperature': forecast.temperature_list,
-            'humidity': forecast.humidity_list
+            'humidity': forecast.humidity_list,
+            'rain': forecast.rain_list
         }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -246,15 +252,19 @@ class ForecastDownloadCSVView(APIView):
 
         response = HttpResponse(content_type='text/csv')
         timestamp = datetime.now().strftime("%d_%m_%Y_%H:%M")
-        response[
-            'Content-Disposition'] = \
-            f'attachment; filename=forecast_{timestamp}.csv'
+
+        if forecast.source_type == 'city':
+            response['Content-Disposition'] = f'attachment; filename={forecast.source_name}.csv'
+        else:
+            response['Content-Disposition'] = f'attachment; filename=forecast {timestamp}.csv'
+
 
         writer = csv.writer(response)
-        writer.writerow(['Time', 'Temperature', 'Humidity'])
+        writer.writerow(['Time', 'Temperature', 'Humidity', 'Rain'])
 
-        for t, temp, hum in zip(forecast.time_list, forecast.temperature_list,
-                                forecast.humidity_list):
-            writer.writerow([t, temp, hum])
+
+        for t, temp, hum, rain in zip(forecast.time_list, forecast.temperature_list, forecast.humidity_list, forecast.rain_list):
+            writer.writerow([t, temp, hum, rain])
+
 
         return response

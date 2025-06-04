@@ -18,6 +18,7 @@ class TemperatureForecast(models.Model):
     time_list = models.JSONField(default=list)
     temperature_list = models.JSONField(default=list)
     humidity_list = models.JSONField(default=list)
+    rain_list = models.JSONField(default=list)
 
     def __str__(self):
         return f"{self.source_type.upper()} Forecast for {self.source_name} at {self.created_at.strftime('%Y-%m-%d %H:%M')}"
