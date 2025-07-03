@@ -163,3 +163,4 @@ Tylko zalogowani użytkownicy mogą korzystać z funkcji prognozowania.
 - **Uwierzytelnianie:** JWT lub Django Allauth
 - **Komunikacja API:** REST + fetch w JavaScript
 - **Format danych:** CSV (upload i download)
+
