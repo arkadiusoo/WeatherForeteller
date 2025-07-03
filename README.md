@@ -1,123 +1,165 @@
-# Lithium: A Django-Powered Boilerplate
-Lithium is a batteries-included Django starter project with everything you need to start coding, including user authentication, static files, default styling, debugging, DRY forms, custom error pages, and more.
+# 🌦️ WeatherForeteller
 
-> This project was formerly known as _DjangoX_ but was renamed to _Lithium_ in November 2024.
+**WeatherForeteller** is a full-stack web application that allows users to upload weather data (CSV format), receive AI-powered forecasts, and visualize the results using a modern interface. It combines a Django-based backend, a server-rendered HTML/CSS/JavaScript frontend, and a machine learning model trained on real datasets.
 
-https://github.com/user-attachments/assets/8698e9dd-1794-4f96-9c3f-85add17e330b
+---
 
-## 👋 Free Newsletter
-[Sign up for updates](https://buttondown.com/lithiumsaas) to the free and upcoming premium SaaS version!
+## 🎯 Project Goal
 
-## 🚀 Features
-- Django 5.1 & Python 3.13
-- Installation via [uv](https://github.com/astral-sh/uv), [Pip](https://pypi.org/project/pip/) or [Docker](https://www.docker.com/)
-- User authentication--log in, sign up, password reset--via [django-allauth](https://github.com/pennersr/django-allauth)
-- Static files configured with [Whitenoise](http://whitenoise.evans.io/en/stable/index.html)
-- Styling with [Bootstrap v5](https://getbootstrap.com/)
-- Debugging with [django-debug-toolbar](https://github.com/jazzband/django-debug-toolbar)
-- DRY forms with [django-crispy-forms](https://github.com/django-crispy-forms/django-crispy-forms)
-- Custom 404, 500, and 403 error pages
+To deliver accurate, hourly weather forecasts based on uploaded CSV data, while providing users with an intuitive and responsive interface for visualization, history tracking, and secure authentication.
 
-## Table of Contents
-* **[Installation](#installation)**
-  * [uv](#uv)
-  * [Pip](#pip)
-  * [Docker](#docker)
-* [Next Steps](#next-steps)
-* [Contributing](#contributing)
-* [Support](#support)
-* [License](#license)
+---
 
-## 📖 Installation
-Lithium can be installed via Pip or Docker. To start, clone the repo to your local computer and change into the proper directory.
+## ✅ Core Components
 
-```
-$ git clone https://github.com/wsvincent/lithium.git
-$ cd lithium
-```
+### 📦 Backend – Django (Python)
 
-### uv
-You can use [uv](https://docs.astral.sh/uv/) to create a dedicated virtual environment.
+The backend is built with Django and Django REST Framework to handle data processing, user management, and model inference.
 
-```
-$ uv sync
-```
+**Features:**
 
-Then run `migrate` to configure the initial database. The command `createsuperuser` will create a new superuser account for accessing the admin. Execute the `runserver` commandt o start up the local server.
+- Project setup and SQLite integration
+- Secure user authentication using token-based auth (JWT or Django Allauth)
+- Storage of user accounts and forecast history
+- REST API endpoints:
+  - `POST /api/upload` – upload CSV weather data
+  - `POST /api/predict` – return AI-generated forecast
+  - `GET /api/history` – fetch previous forecast results
+- Prediction results returned in CSV format
 
-```
-$ uv run manage.py migrate
-$ uv run manage.py createsuperuser
-$ uv run manage.py runserver
-# Load the site at http://127.0.0.1:8000 or http://127.0.0.1:8000/admin for the admin
-```
+---
 
-### Pip
-To use Pip, create a new virtual environment and then install all packages hosted in `requirements.txt`. Run `migrate` to configure the initial database. and `createsuperuser` to create a new superuser account for accessing the admin. Execute the `runserver` commandt o start up the local server.
+### 🌤️ Machine Learning – Forecasting Engine
 
-```
-(.venv) $ pip install -r requirements.txt
-(.venv) $ python manage.py migrate
-(.venv) $ python manage.py createsuperuser
-(.venv) $ python manage.py runserver
-# Load the site at http://127.0.0.1:8000 or http://127.0.0.1:8000/admin for the admin
-```
+A core component is a trained model capable of generating hourly weather forecasts from structured input.
 
-### Docker
+**Features:**
 
-To use Docker with PostgreSQL as the database update the `DATABASES` section of `django_project/settings.py` to reflect the following:
+- Trained on selected Kaggle datasets
+- Produces predictions in 1-hour intervals
+- Connected directly to the backend `/api/predict` endpoint
+- Outputs results formatted for CSV and visual display
 
-```python
-# django_project/settings.py
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "db",  # set in docker-compose.yml
-        "PORT": 5432,  # default postgres port
-    }
-}
-```
+---
 
-The `INTERNAL_IPS` configuration in `django_project/settings.py` must be also be updated:
+### 💻 Frontend – HTML/CSS/JavaScript (server-rendered)
 
-```python
-# config/settings.py
-# django-debug-toolbar
-import socket
-hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
-INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]
-```
+The frontend is built using classic HTML templates, styled with CSS, and enhanced with JavaScript.
 
-And then proceed to build the Docker image, run the container, and execute the standard commands within Docker.
+**Features:**
 
-```
-$ docker compose up -d --build
-$ docker compose exec web python manage.py migrate
-$ docker compose exec web python manage.py createsuperuser
-# Load the site at http://127.0.0.1:8000 or http://127.0.0.1:8000/admin for the admin
-```
+- User login and registration pages
+- CSV file upload interface with visual feedback
+- Forecast charts mimicking Google Weather
+- Option to download predictions as CSV
+- History view of past forecasts (with download link)
+- API communication via JavaScript (AJAX/fetch)
 
-## Next Steps
+---
 
-- Add environment variables. There are multiple packages but I personally prefer [environs](https://pypi.org/project/environs/).
-- Add [gunicorn](https://pypi.org/project/gunicorn/) as the production web server.
-- Update the [EMAIL_BACKEND](https://docs.djangoproject.com/en/4.0/topics/email/#module-django.core.mail) and connect with a mail provider.
-- Make the [admin more secure](https://opensource.com/article/18/1/10-tips-making-django-admin-more-secure).
-- `django-allauth` supports [social authentication](https://django-allauth.readthedocs.io/en/latest/providers.html) if you need that.
+### 🔒 User Management
 
-I cover all of these steps in tutorials and premium courses over at [LearnDjango.com](https://learndjango.com).
+The system ensures that only authenticated users can interact with forecasting features.
 
-## 🤝 Contributing
+**Features:**
 
-Contributions, issues and feature requests are welcome! See [CONTRIBUTING.md](https://github.com/wsvincent/lithium/blob/master/CONTRIBUTING.md).
+- Secure registration and login (JWT-based or session)
+- Authenticated access to prediction tools
+- Personalized forecast history per user
 
-## ⭐️ Support
+---
 
-Give a ⭐️  if this project helped you!
+## 🧪 Technologies Used
 
-## License
+- **Backend:** Python 3, Django, Django REST Framework, SQLite
+- **Frontend:** HTML, CSS, JavaScript (vanilla), Django templates
+- **ML & Prediction:** Pandas, Scikit-learn or TensorFlow
+- **Auth:** JWT or Django Allauth
+- **API Communication:** REST endpoints, JavaScript fetch
+- **Data Format:** CSV (upload and download)
 
-[The MIT License](LICENSE)
+---
+
+<sub>🇵🇱 Wersja polska poniżej</sub>
+
+---
+
+# 🌦️ WeatherForeteller
+
+**WeatherForeteller** to pełnostosowa aplikacja internetowa, która umożliwia użytkownikom przesyłanie danych pogodowych w formacie CSV, otrzymywanie prognoz generowanych przez sztuczną inteligencję oraz wizualizację wyników w nowoczesnym interfejsie. System łączy backend oparty na Django, klasyczny frontend (HTML, CSS, JavaScript) renderowany po stronie serwera oraz model uczenia maszynowego wytrenowany na rzeczywistych danych.
+
+---
+
+## 🎯 Cel projektu
+
+Celem projektu jest dostarczanie dokładnych prognoz pogody w interwałach godzinowych na podstawie przesyłanych plików CSV, przy zachowaniu prostego i przejrzystego interfejsu użytkownika do wizualizacji, historii oraz bezpiecznej autoryzacji.
+
+---
+
+## ✅ Główne komponenty
+
+### 📦 Backend – Django (Python)
+
+Backend zbudowano przy użyciu Django i Django REST Framework, odpowiada on za przetwarzanie danych, uwierzytelnianie oraz komunikację z modelem ML.
+
+**Funkcje:**
+
+- Konfiguracja projektu oraz integracja z bazą SQLite
+- Bezpieczne logowanie użytkowników (JWT lub Django Allauth)
+- Przechowywanie kont użytkowników i historii prognoz
+- Endpointy REST API:
+  - `POST /api/upload` – przesyłanie danych pogodowych (CSV)
+  - `POST /api/predict` – otrzymanie prognozy wygenerowanej przez AI
+  - `GET /api/history` – pobranie historii wcześniejszych prognoz
+- Wyniki zwracane w formacie CSV
+
+---
+
+### 🌤️ Uczenie maszynowe – silnik prognozowania
+
+Główny komponent odpowiedzialny za generowanie godzinowych prognoz na podstawie danych wejściowych.
+
+**Funkcje:**
+
+- Model wytrenowany na wybranych zbiorach danych z Kaggle
+- Prognozy w interwałach jednogodzinnych
+- Bezpośrednia integracja z endpointem `/api/predict`
+- Wyniki przystosowane do pobrania i wizualizacji (CSV)
+
+---
+
+### 💻 Frontend – HTML/CSS/JavaScript (renderowany przez Django)
+
+Frontend korzysta z klasycznych szablonów HTML, stylowany jest CSS-em, a interaktywność zapewnia JavaScript.
+
+**Funkcje:**
+
+- Widoki logowania i rejestracji użytkownika
+- Formularz przesyłania CSV z informacją o postępie
+- Wizualizacja prognoz na wykresie (w stylu Google Weather)
+- Możliwość pobrania prognoz w formacie CSV
+- Widok historii prognoz z możliwością pobierania
+- Komunikacja z backendem za pomocą JavaScript (fetch/AJAX)
+
+---
+
+### 🔒 Zarządzanie użytkownikami
+
+Tylko zalogowani użytkownicy mogą korzystać z funkcji prognozowania.
+
+**Funkcje:**
+
+- Bezpieczna rejestracja i logowanie (JWT lub sesja)
+- Dostęp do funkcji prognozowania tylko dla zalogowanych
+- Historia prognoz przypisana do konkretnego użytkownika
+
+---
+
+## 🧪 Wykorzystane technologie
+
+- **Backend:** Python 3, Django, Django REST Framework, SQLite
+- **Frontend:** HTML, CSS, JavaScript (vanilla), szablony Django
+- **ML i prognozowanie:** Pandas, Scikit-learn lub TensorFlow
+- **Uwierzytelnianie:** JWT lub Django Allauth
+- **Komunikacja API:** REST + fetch w JavaScript
+- **Format danych:** CSV (upload i download)
